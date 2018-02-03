@@ -9,16 +9,8 @@
     "debug": "nodemon --exec babel-node .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/imkimchi/steem-rss.git"
-  },
   "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/imkimchi/steem-rss/issues"
-  },
-  "homepage": "https://github.com/imkimchi/steem-rss#readme",
+  "license": "MIT",
   "devDependencies": {
     "babel-cli": "^6.24.1",
     "babel-plugin-transform-function-bind": "^6.22.0",
