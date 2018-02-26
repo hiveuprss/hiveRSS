@@ -25,20 +25,13 @@ const rssGenerator = async (category, tag) => {
         return completedFeed.xml()
 }
 
-const methodMap = {
-    'feed': (query) => getDiscussionsByFeed(query),
-    'blog': (query) => getDiscussionsByBlog(query),
-    'new': (query) => getDiscussionsByCreated(query),
-    'hot': (query) => getDiscussionsByHot(query),
-    'trend': (query) => getDiscussionsByTrending(query)
-}
-
 const getContent = async (category, tag) => methodMap.hasOwnProperty(category) ?
                                             await methodMap[category]({tag, limit: 10}) :
                                             Promise.reject({status: 400, message: "Unknown Category"})
 
 
 const feedItem = async (feed, response) => {
+    console.log(Object.keys(response[0]));
     response.forEach(({title, url, author, category, created: date}) => {
         feed.item({
             title,
