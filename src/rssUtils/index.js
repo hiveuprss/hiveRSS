@@ -10,6 +10,7 @@ const getDiscussionsByFeed = promisify(steem.api.getDiscussionsByFeed);
 const getDiscussionsByBlog = promisify(steem.api.getDiscussionsByBlog);
 const getDiscussionsByHot = promisify(steem.api.getDiscussionsByHot);
 const getDiscussionsByTrending = promisify(steem.api.getDiscussionsByTrending);
+const getDiscussionsByPromoted = promisify(steem.api.getDiscussionsByPromoted);
 
 const rssGenerator = async (category, tag) => {
     const feedOption = {
@@ -39,7 +40,8 @@ const methodMap = {
     'blog': (query) => getDiscussionsByBlog(query),
     'new': (query) => getDiscussionsByCreated(query),
     'hot': (query) => getDiscussionsByHot(query),
-    'trending': (query) => getDiscussionsByTrending(query)
+    'trending': (query) => getDiscussionsByTrending(query),
+    'promoted': (query) => getDiscussionsByPromoted(query),
 }
 
 const getContent = async (category, tag) => methodMap.hasOwnProperty(category) ?
