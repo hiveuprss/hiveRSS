@@ -13,7 +13,7 @@ const getDiscussionsByTrending = promisify(steem.api.getDiscussionsByTrending);
 
 const rssGenerator = async (category, tag) => {
     const feedOption = {
-        title: isUserMethod(category) ? `Posts from <a href="${makeUserProfileURL(category,tag)}">@${tag}'s ${category}</a>` : `${category} ${tag} posts`,
+        title: isUserMethod(category) ? `Posts from @${tag}'s ${category}` : `${category} ${tag} posts`,
         feed_url: `${config.FEED_URL}/${category}/${tag}`,
         site_url: isUserMethod(category) ? `${makeUserProfileURL(category,tag)}` : `https://steemit.com/${category}/${tag}`,
         image_url: 'https://steemit.com/images/steemit-share.png',
