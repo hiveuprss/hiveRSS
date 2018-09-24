@@ -13,22 +13,21 @@ const getDiscussionsByTrending = promisify(steem.api.getDiscussionsByTrending);
 
 const rssGenerator = async (category, tag) => {
     const feedOption = {
-        title: isUserMethod(category) ? `Posts from ${makeUserProfileLink(category,tag)}` : `${category} ${tag} posts`,
+        title: isUserMethod(category) ? `Posts from <a href="${makeUserProfileURL(category,tag)}">@${tag}'s ${category}</a>` : `${category} ${tag} posts`,
         feed_url: `${config.FEED_URL}/${category}/${tag}`,
-        site_url: `https://steemit.com/${category}/${tag}`,
+        site_url: isUserMethod(category) ? `${makeUserProfileURL(category,tag)}` : `https://steemit.com/${category}/${tag}`,
         image_url: 'https://steemit.com/images/steemit-share.png',
         docs: 'https://github.com/steemrss/steemrss'
     } 
 
         const apiResponse = await getContent(category, tag)
-        console.log(apiResponse);
         const feed = new RSS(feedOption)
         const completedFeed = await feedItem(feed, apiResponse)
         return completedFeed.xml()
 }
 
-const makeUserProfileLink = (category, username) => {
-    return `<a href="https://steemit.com/@${username}/${category}">${username}'s ${category}</a>`;
+const makeUserProfileURL = (category, username) => {
+    return `https://steemit.com/@${username}/${category}`;
 }
 
 const isUserMethod = (category) => {
@@ -40,7 +39,7 @@ const methodMap = {
     'blog': (query) => getDiscussionsByBlog(query),
     'new': (query) => getDiscussionsByCreated(query),
     'hot': (query) => getDiscussionsByHot(query),
-    'trend': (query) => getDiscussionsByTrending(query)
+    'trending': (query) => getDiscussionsByTrending(query)
 }
 
 const getContent = async (category, tag) => methodMap.hasOwnProperty(category) ?
