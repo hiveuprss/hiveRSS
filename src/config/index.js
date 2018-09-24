@@ -1,3 +1,1 @@
-export default {
-    FEED_URL: 'Change-this-when-hosting'
-}
+exports.FEED_URL = 'http://www.steemrss.com';

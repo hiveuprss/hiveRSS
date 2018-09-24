@@ -2,7 +2,8 @@ import steem from 'steem'
 import RSS from 'rss'
 import xml from 'xml'
 import { promisify } from 'util'
-import { FEED_URL } from '../config'
+var config = require('../config');
+
 
 const getDiscussionsByCreated = promisify(steem.api.getDiscussionsByCreated);
 const getDiscussionsByFeed = promisify(steem.api.getDiscussionsByFeed);
@@ -12,11 +13,11 @@ const getDiscussionsByTrending = promisify(steem.api.getDiscussionsByTrending);
 
 const rssGenerator = async (category, tag) => {
     const feedOption = {
-        title: 'UtopianRSS',
-        feed_url: `https://${FEED_URL}/${tag}`,
-        site_url: `https://steemit.com/created/${tag}`,
+        title: `${category}'s ${tag} posts`,
+        feed_url: `${config.FEED_URL}/${category}/${tag}`,
+        site_url: `https://steemit.com/${category}/${tag}`,
         image_url: 'https://steemit.com/images/steemit-share.png',
-        docs: 'https://github.com/utopian-io/steem-automation/'
+        docs: 'https://github.com/steemrss/steemrss'
     } 
 
         const apiResponse = await getContent(category, tag)
