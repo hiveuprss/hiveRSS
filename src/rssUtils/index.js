@@ -14,11 +14,28 @@ const getDiscussionsByHot = promisify(steem.api.getDiscussionsByHot);
 const getDiscussionsByTrending = promisify(steem.api.getDiscussionsByTrending);
 const getDiscussionsByPromoted = promisify(steem.api.getDiscussionsByPromoted);
 
-const rssGenerator = async (category, tag) => {
+const rssGeneratorUser = async (username, type) => {
+
     const feedOption = {
-        title: isUserMethod(category) ? `Posts from @${tag}'s ${category}` : `${category} ${tag} posts`,
+        title: `Posts from @${username}'s ${type}`,
+        feed_url: `${config.FEED_URL}/@${username}/${type}`,
+        site_url: `${makeUserProfileURL(username,type)}`,
+        image_url: 'https://steemit.com/images/steemit-share.png',
+        docs: 'https://github.com/steemrss/steemrss'
+    } 
+
+        const apiResponse = await getContent(type, username)
+        const feed = new RSS(feedOption)
+        const completedFeed = await feedItem(feed, apiResponse)
+        return completedFeed.xml()
+}
+
+
+const rssGeneratorTopic = async (category, tag) => {
+    const feedOption = {
+        title: `${category} ${tag} posts`,
         feed_url: `${config.FEED_URL}/${category}/${tag}`,
-        site_url: isUserMethod(category) ? `${makeUserProfileURL(category,tag)}` : `https://steemit.com/${category}/${tag}`,
+        site_url: `https://steemit.com/${category}/${tag}`,
         image_url: 'https://steemit.com/images/steemit-share.png',
         docs: 'https://github.com/steemrss/steemrss'
     } 
@@ -29,12 +46,8 @@ const rssGenerator = async (category, tag) => {
         return completedFeed.xml()
 }
 
-const makeUserProfileURL = (category, username) => {
-    return `https://steemit.com/@${username}/${category}`;
-}
-
-const isUserMethod = (category) => {
-   return (category === 'feed' || category === 'blog');
+const makeUserProfileURL = (username, type) => {
+    return `https://steemit.com/@${username}/${type}`;
 }
 
 const methodMap = {
@@ -66,4 +79,9 @@ const feedItem = async (feed, response) => {
     return feed
 }
 
-export default rssGenerator;
+module.exports = {
+    rssGeneratorTopic: rssGeneratorTopic,
+    rssGeneratorUser: rssGeneratorUser
+}
+
+//export default rssGenerator;
