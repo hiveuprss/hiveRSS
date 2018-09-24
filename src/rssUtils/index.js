@@ -3,6 +3,8 @@ import RSS from 'rss'
 import xml from 'xml'
 import { promisify } from 'util'
 var config = require('../config');
+var showdown = require('showdown');
+var markdownConverter = new showdown.Converter();
 
 
 const getDiscussionsByCreated = promisify(steem.api.getDiscussionsByCreated);
@@ -57,7 +59,7 @@ const feedItem = async (feed, response) => {
             categories: [category],
             author,
             date,
-            description: body,
+            description: body.replace(/!\[.*\]\(.*\)/g, (x) => {return markdownConverter.makeHtml(x);})
         })
     });
 
