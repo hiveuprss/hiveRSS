@@ -13,7 +13,7 @@ const getDiscussionsByTrending = promisify(steem.api.getDiscussionsByTrending);
 
 const rssGenerator = async (category, tag) => {
     const feedOption = {
-        title: `${category}'s ${tag} posts`,
+        title: isUserMethod(category) ? `Posts from ${makeUserProfileLink(category,tag)}` : `${category} ${tag} posts`,
         feed_url: `${config.FEED_URL}/${category}/${tag}`,
         site_url: `https://steemit.com/${category}/${tag}`,
         image_url: 'https://steemit.com/images/steemit-share.png',
@@ -21,9 +21,18 @@ const rssGenerator = async (category, tag) => {
     } 
 
         const apiResponse = await getContent(category, tag)
+        console.log(apiResponse);
         const feed = new RSS(feedOption)
         const completedFeed = await feedItem(feed, apiResponse)
         return completedFeed.xml()
+}
+
+const makeUserProfileLink = (category, username) => {
+    return `<a href="https://steemit.com/@${username}/${category}">${username}'s ${category}</a>`;
+}
+
+const isUserMethod = (category) => {
+   return (category === 'feed' || category === 'blog');
 }
 
 const methodMap = {
@@ -40,13 +49,14 @@ const getContent = async (category, tag) => methodMap.hasOwnProperty(category) ?
 
 
 const feedItem = async (feed, response) => {
-    response.forEach(({title, url, author, category, created: date}) => {
+    response.forEach(({title, url, author, category, created: date, body}) => {
         feed.item({
             title,
             url: `https://steemit.com${url}`,
             categories: [category],
             author,
-            date
+            date,
+            description: body,
         })
     });
 
