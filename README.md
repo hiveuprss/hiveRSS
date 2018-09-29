@@ -1,30 +1,49 @@
-<p align="center">
-  <img src="https://steemitimages.com/DQmfLTv5teUHGnXEJa1dkg1pU6WDoLLR5Czn3Tq9QgHjA9X/steemrss.png" />
-</p>
+![SteemRSS Logo](https://steemitimages.com/DQmfLTv5teUHGnXEJa1dkg1pU6WDoLLR5Czn3Tq9QgHjA9X/steemrss.png)
 
-<h1>User Feed</h1>
-<blockquote>Get posts from your feeds or others' as well.</blockquote>
-<code>steemrss.com/feed/:username</code>
-<br/>
-<ul>
-<li><a href="steemrss.com/feed/philipkoon">steemrss.com/feed/philipkoon</a></li>
-</ul>
-<h1>Posts By Author</h1>
-<blockquote>Get posts from your favorite steemian.</blockquote>
-<code>steemrss.com/blog/:username</code>
-<br/>
-<ul>
-<li><a href="steemrss.com/feed/philipkoon">steemrss.com/feed/philipkoon</a></li>
-</ul>
-<h1>Posts by Tag</h1>
-<blockquote>Get posts by Tag, you can get posts by new/hot/trending</blockquote>
-<pre><code>https://steemrss.com/new/:tag
-https://steemrss.com/hot/:tag
-https://steemrss.com/trend/:tag
-</code></pre>
-<br/>
-<ul>
-<li><a href="http://steemrss.com/new/ethereum">http://steemrss.com/new/steemit</a></li>
-<li><a href="http://steemrss.com/new/bitcoin">http://steemrss.com/hot/steemit</a></li>
-<li><a href="http://steemrss.com/new/steem">http://steemrss.com/trend/steemit</a></li>
-</ul>
+# SteemRSS [http://steemrss.com](http://steemrss.com)
+
+A simple tool for creating Atom/RSS feeds from Steemit accounts and categories.
+
+Go to (almost) any Steemit page with a content stream, and replace 'steemit' with 'steemrss' in the URL. 
+
+http://steemit.com/trending/steemit -> http://steem***rss***.com/trending/steemit
+
+
+## User Feed
+> Get posts from your feeds or others' as well.
+
+`steemrss.com/@<username>/feed`
+
+*   [steemrss.com/@philipkoon/feed](http://steemrss.com/@philipkoon/feed)
+
+## Posts By Author
+
+> Get posts from your favorite steemian.
+
+`steemrss.com/@<username>/blog`
+
+*   [steemrss.com/@philipkoon/blog](http://steemrss.com/@philipkoon/blog)
+
+## Posts by Category
+
+> Get posts by category, you can get posts by new/hot/trending/promoted
+
+        http://steemrss.com/new/<category> OR http://steemrss.com/created/<category>
+        http://steemrss.com/hot/<category>
+        http://steemrss.com/trending/<category>
+        http://steemrss.com/promoted/<category>
+
+        http://steemrss.com/votes/<category>
+        	posts sorted by number of votes, descending
+
+        http://steemrss.com/cashout/<category>
+        	posts sorted by time remaining until payout, ascending
+
+* [http://steemrss.com/new/steemit](http://steemrss.com/new/ethereum)
+* [http://steemrss.com/hot/steemit](http://steemrss.com/new/bitcoin)
+* [http://steemrss.com/trend/steemit](http://steemrss.com/new/steem)
+
+## Contributors
+
+* Creator of SteemRSS: [@philipkoon](http://steemit.com/@philipkoon)
+* Contributor: [@doriitamar](http://steemit.com/@doriitamar)

@@ -13,6 +13,10 @@ const getDiscussionsByBlog = promisify(steem.api.getDiscussionsByBlog);
 const getDiscussionsByHot = promisify(steem.api.getDiscussionsByHot);
 const getDiscussionsByTrending = promisify(steem.api.getDiscussionsByTrending);
 const getDiscussionsByPromoted = promisify(steem.api.getDiscussionsByPromoted);
+//const getDiscussionsByComments = promisify(steem.api.getDiscussionsByComments);
+const getDiscussionsByVotes = promisify(steem.api.getDiscussionsByVotes);
+const getDiscussionsByCashout = promisify(steem.api.getDiscussionsByCashout);
+
 
 const rssGeneratorUser = async (username, type) => {
 
@@ -54,9 +58,13 @@ const methodMap = {
     'feed': (query) => getDiscussionsByFeed(query),
     'blog': (query) => getDiscussionsByBlog(query),
     'new': (query) => getDiscussionsByCreated(query),
+    'created': (query) => getDiscussionsByCreated(query),
     'hot': (query) => getDiscussionsByHot(query),
     'trending': (query) => getDiscussionsByTrending(query),
     'promoted': (query) => getDiscussionsByPromoted(query),
+    //'comments': (query) => getDiscussionsByComments(query),
+    'votes': (query) => getDiscussionsByVotes(query),
+    'cashout': (query) => getDiscussionsByCashout(query),
 }
 
 const getContent = async (category, tag) => methodMap.hasOwnProperty(category) ?
@@ -83,5 +91,3 @@ module.exports = {
     rssGeneratorTopic: rssGeneratorTopic,
     rssGeneratorUser: rssGeneratorUser
 }
-
-//export default rssGenerator;
