@@ -39,9 +39,9 @@ http://steemit.com/trending/steemit -> http://steem***rss***.com/trending/steemi
         http://steemrss.com/cashout/<category>
         	posts sorted by time remaining until payout, ascending
 
-* [http://steemrss.com/new/steemit](http://steemrss.com/new/ethereum)
-* [http://steemrss.com/hot/steemit](http://steemrss.com/new/bitcoin)
-* [http://steemrss.com/trend/steemit](http://steemrss.com/new/steem)
+* [http://steemrss.com/new/ethereum](http://steemrss.com/new/ethereum)
+* [http://steemrss.com/hot/bitcoin](http://steemrss.com/hot/bitcoin)
+* [http://steemrss.com/trending/steem](http://steemrss.com/trending/steem)
 
 ## Contributors
 
