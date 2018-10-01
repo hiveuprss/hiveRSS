@@ -13,15 +13,25 @@ fs.readFile('README.md', 'utf8', (err, data) => {
     homepageContent = markdownConverter.makeHtml(data);
 });
 
+var iconData = '';
+fs.readFile('favicon.ico', (err, data) => {
+    if (err) throw err;
+    iconData = data;
+});
 
-const router = new Router({ prefix: '/' })
+const router = new Router();
+router.get('/favicon.ico', async (ctx, next) => {
+    ctx.type = 'image/x-icon'
+    ctx.body = iconData   
+})
 router.get('/', async (ctx, next) => {
     ctx.type = 'text/html'
     ctx.body = homepageContent   
 })
 
+
 steem.api.setOptions({ url: 'https://api.steemit.com/' });
-const routes = [ userRouter, tagRouter, router ]
+const routes = [ router, userRouter, tagRouter ]
 
 export default () => compose([].concat(
   ...routes.map(r => [r.routes(), r.allowedMethods()])
