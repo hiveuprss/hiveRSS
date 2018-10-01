@@ -1,3 +1,5 @@
+<title>steemRSS</title>
+
 ![SteemRSS Logo](https://steemitimages.com/DQmfLTv5teUHGnXEJa1dkg1pU6WDoLLR5Czn3Tq9QgHjA9X/steemrss.png)
 
 # SteemRSS [http://steemrss.com](http://steemrss.com)
