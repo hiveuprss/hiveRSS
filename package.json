@@ -2,14 +2,21 @@
   "name": "steem-rss",
   "version": "1.0.0",
   "description": "",
+  "repository": {
+    "url": "github.com/steemrss/steemRSS"
+  },
   "main": "src/app.js",
+  "watch": {
+    "start": "{src,test}/**/*.js"
+  },
   "scripts": {
     "heroku-prebuild": "export NPM_CONFIG_PRODUCTION=false; export NODE_ENV=; NPM_CONFIG_PRODUCTION=false NODE_ENV=development npm install",
     "heroku-postbuild": "export NPM_CONFIG_PRODUCTION=true; export NODE_ENV=production;",
     "start": "export NODE_ENV=production && npm run build && node lib/app.js",
     "build": "babel src --out-dir lib --plugins=babel-plugin-transform-runtime,transform-function-bind,transform-regenerator",
     "debug": "nodemon --exec babel-node .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "npm-watch"
   },
   "author": "",
   "license": "MIT",
@@ -19,18 +26,19 @@
     "babel-plugin-transform-regenerator": "^6.24.1",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.7.0",
-    "babel-preset-stage-3": "^6.24.1"
+    "babel-preset-stage-3": "^6.24.1",
+    "npm-watch": "^0.4.0"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
-    "koa": "^2.2.0",
-    "koa-compose": "^4.0.0",
-    "koa-logger": "^3.0.0",
-    "koa-router": "^7.2.0",
+    "koa": "^2.6.1",
+    "koa-compose": "^4.1.0",
+    "koa-logger": "^3.2.0",
+    "koa-router": "^7.4.0",
     "koa-static": "^3.0.0",
     "path": "^0.12.7",
     "rss": "^1.2.2",
-    "showdown": "^1.8.6",
-    "steem": "^0.6.7"
+    "showdown": "^1.8.7",
+    "steem": "^0.7.2"
   }
 }

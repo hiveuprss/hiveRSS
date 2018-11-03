@@ -13,10 +13,9 @@ const getDiscussionsByBlog = promisify(steem.api.getDiscussionsByBlog);
 const getDiscussionsByHot = promisify(steem.api.getDiscussionsByHot);
 const getDiscussionsByTrending = promisify(steem.api.getDiscussionsByTrending);
 const getDiscussionsByPromoted = promisify(steem.api.getDiscussionsByPromoted);
-//const getDiscussionsByComments = promisify(steem.api.getDiscussionsByComments);
+const getDiscussionsByComments = promisify(steem.api.getDiscussionsByComments);
 const getDiscussionsByVotes = promisify(steem.api.getDiscussionsByVotes);
 const getDiscussionsByCashout = promisify(steem.api.getDiscussionsByCashout);
-
 
 const rssGeneratorUser = async (username, type) => {
 
@@ -62,7 +61,7 @@ const methodMap = {
     'hot': (query) => getDiscussionsByHot(query),
     'trending': (query) => getDiscussionsByTrending(query),
     'promoted': (query) => getDiscussionsByPromoted(query),
-    //'comments': (query) => getDiscussionsByComments(query),
+    'comments': (query) => getDiscussionsByComments({tag: query.tag, limit: query.limit, start_author: query.tag}),
     'votes': (query) => getDiscussionsByVotes(query),
     'cashout': (query) => getDiscussionsByCashout(query),
 }

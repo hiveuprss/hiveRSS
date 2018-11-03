@@ -2,7 +2,7 @@
 
 ![SteemRSS Logo](https://steemitimages.com/DQmfLTv5teUHGnXEJa1dkg1pU6WDoLLR5Czn3Tq9QgHjA9X/steemrss.png)
 
-# SteemRSS [http://steemrss.com](http://steemrss.com)
+# SteemRSS [http://steemrss.com](http://www.steemrss.com)
 
 A simple tool for creating Atom/RSS feeds from Steemit accounts and categories.
 
@@ -16,7 +16,7 @@ http://steemit.com/trending/steemit -> http://steem***rss***.com/trending/steemi
 
 `steemrss.com/@<username>/feed`
 
-*   [steemrss.com/@philipkoon/feed](http://steemrss.com/@philipkoon/feed)
+*   [steemrss.com/@philipkoon/feed](http://www.steemrss.com/@philipkoon/feed)
 
 ## Posts By Author
 
@@ -24,7 +24,15 @@ http://steemit.com/trending/steemit -> http://steem***rss***.com/trending/steemi
 
 `steemrss.com/@<username>/blog`
 
-*   [steemrss.com/@philipkoon/blog](http://steemrss.com/@philipkoon/blog)
+*   [steemrss.com/@philipkoon/blog](http://www.steemrss.com/@philipkoon/blog)
+
+## Comments By Author
+
+> Get comments from your favorite steemian.
+
+`steemrss.com/@<username>/comments`
+
+*   [steemrss.com/@ned/comments](http://www.steemrss.com/@ned/comments)
 
 ## Posts by Category
 
@@ -41,11 +49,12 @@ http://steemit.com/trending/steemit -> http://steem***rss***.com/trending/steemi
         http://steemrss.com/cashout/<category>
         	posts sorted by time remaining until payout, ascending
 
-* [http://steemrss.com/new/ethereum](http://steemrss.com/new/ethereum)
-* [http://steemrss.com/hot/bitcoin](http://steemrss.com/hot/bitcoin)
-* [http://steemrss.com/trending/steem](http://steemrss.com/trending/steem)
+* [http://steemrss.com/new/ethereum](http://www.steemrss.com/new/ethereum)
+* [http://steemrss.com/hot/bitcoin](http://www.steemrss.com/hot/bitcoin)
+* [http://steemrss.com/trending/steem](http://www.steemrss.com/trending/steem)
 
 ## Contributors
 
-* Creator of SteemRSS: [@philipkoon](http://steemit.com/@philipkoon)
-* Contributor: [@doriitamar](http://steemit.com/@doriitamar)
+* Creator of SteemRSS: [@philipkoon](https://steemit.com/@philipkoon)
+* Contributor: [@doriitamar](https://steemit.com/@doriitamar)
+* Contributor: [@torrey.blog](https://steemit.com/@torrey.blog)
