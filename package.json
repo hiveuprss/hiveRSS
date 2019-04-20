@@ -31,14 +31,14 @@
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
-    "koa": "^2.6.1",
+    "koa": "^2.7.0",
     "koa-compose": "^4.1.0",
     "koa-logger": "^3.2.0",
     "koa-router": "^7.4.0",
     "koa-static": "^3.0.0",
     "path": "^0.12.7",
     "rss": "^1.2.2",
-    "showdown": "^1.8.7",
-    "steem": "^0.7.2"
+    "showdown": "^1.9.0",
+    "steem": "^0.7.4"
   }
 }
