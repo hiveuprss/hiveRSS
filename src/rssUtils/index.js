@@ -6,22 +6,38 @@ var config = require('../config');
 var showdown = require('showdown');
 var markdownConverter = new showdown.Converter();
 
+const makeSiteUrl = (category, tag, iface) => {
+    if (iface == 'ulogs') {
+        return `https://ulogs.org/${category}/${tag}`
+    } else {
+        return `https://steemit.com/${category}/${tag}`
+    }
+}
 
-const getDiscussionsByCreated = promisify(steem.api.getDiscussionsByCreated);
-const getDiscussionsByFeed = promisify(steem.api.getDiscussionsByFeed);
-const getDiscussionsByBlog = promisify(steem.api.getDiscussionsByBlog);
-const getDiscussionsByHot = promisify(steem.api.getDiscussionsByHot);
-const getDiscussionsByTrending = promisify(steem.api.getDiscussionsByTrending);
-const getDiscussionsByPromoted = promisify(steem.api.getDiscussionsByPromoted);
-const getDiscussionsByComments = promisify(steem.api.getDiscussionsByComments);
-const getDiscussionsByVotes = promisify(steem.api.getDiscussionsByVotes);
-const getDiscussionsByCashout = promisify(steem.api.getDiscussionsByCashout);
+const makeFeedItemUrl = (url, iface) => {
+    if (iface == 'ulogs') {
+        return `https://ulogs.org${url}`
+    } else {
+        return `https://steemit.com${url}`
+    }
+}
+
+const makeUserProfileURL = (username, type, iface) => {
+    if (iface == 'ulogs') {
+        return `https://ulogs.org/@${username}/${type}`
+    } else {
+        return `https://steemit.com/@${username}/${type}`;
+    }
+}
 
 const rssGeneratorUser = async (username, type, iface) => {
+
+    var feedQueryParams = iface == '' ? '' : `?interface=${iface}`
+
     const feedOption = {
         title: `Posts from @${username}'s ${type}`,
-        feed_url: `${config.FEED_URL}/@${username}/${type}?interface=${iface}`,
-        site_url: `${makeUserProfileURL(username,type,iface)}`,
+        feed_url: `${config.FEED_URL}/@${username}/${type}${feedQueryParams}`,
+        site_url: makeUserProfileURL(username,type,iface),
         image_url: 'https://steemit.com/images/steemit-share.png',
         docs: 'https://github.com/steemrss/steemrss'
     } 
@@ -32,18 +48,14 @@ const rssGeneratorUser = async (username, type, iface) => {
         return completedFeed.xml()
 }
 
-
 const rssGeneratorTopic = async (category, tag, iface) => {
-    if (iface == 'ulogs') {
-        var site_url = `https://ulogs.org/${category}/${tag}`
-    } else {
-        var site_url = `https://steemit.com/${category}/${tag}`
-    }
+
+    var feedQueryParams = iface == '' ? '' : `?interface=${iface}`
 
     const feedOption = {
         title: `${category} ${tag} posts`,
-        feed_url: `${config.FEED_URL}/${category}/${tag}?interface=${iface}`,
-        site_url: `${site_url}`,
+        feed_url: `${config.FEED_URL}/${category}/${tag}${feedQueryParams}`,
+        site_url: makeSiteUrl(category,tag,iface),
         image_url: 'https://steemit.com/images/steemit-share.png',
         docs: 'https://github.com/steemrss/steemrss'
     } 
@@ -54,13 +66,15 @@ const rssGeneratorTopic = async (category, tag, iface) => {
         return completedFeed.xml()
 }
 
-const makeUserProfileURL = (username, type, iface) => {
-    if (iface == 'ulogs') {
-        return `https://ulogs.org/@${username}/${type}`
-    } else {
-        return `https://steemit.com/@${username}/${type}`;
-    }
-}
+const getDiscussionsByCreated = promisify(steem.api.getDiscussionsByCreated);
+const getDiscussionsByFeed = promisify(steem.api.getDiscussionsByFeed);
+const getDiscussionsByBlog = promisify(steem.api.getDiscussionsByBlog);
+const getDiscussionsByHot = promisify(steem.api.getDiscussionsByHot);
+const getDiscussionsByTrending = promisify(steem.api.getDiscussionsByTrending);
+const getDiscussionsByPromoted = promisify(steem.api.getDiscussionsByPromoted);
+const getDiscussionsByComments = promisify(steem.api.getDiscussionsByComments);
+const getDiscussionsByVotes = promisify(steem.api.getDiscussionsByVotes);
+const getDiscussionsByCashout = promisify(steem.api.getDiscussionsByCashout);
 
 const methodMap = {
     'feed': (query) => getDiscussionsByFeed(query),
@@ -79,20 +93,11 @@ const getContent = async (category, tag) => methodMap.hasOwnProperty(category) ?
                                             await methodMap[category]({tag, limit: 10}) :
                                             Promise.reject({status: 400, message: "Unknown Category"})
 
-
 const feedItem = async (feed, response, iface) => {
-    console.log(response)
-
     response.forEach(({title, url, author, category, created: date, body}) => {
-        if (iface == 'ulogs') {
-            var url = `https://ulogs.org/${url}`
-        } else {
-            var url = `https://steemit.com/${url}`
-        }
-
         feed.item({
             title,
-            url: `${url}`,
+            url: makeFeedItemUrl(url,iface),
             categories: [category],
             author,
             date,

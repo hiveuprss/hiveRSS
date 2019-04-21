@@ -12,7 +12,7 @@ var getInterface = function (query) {
         return query['interface']
       }
     } 
-  return 'steemit'
+  return ''
 }
 
 router.get(':username/:type', async (ctx, next) => {
