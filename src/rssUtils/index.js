@@ -6,6 +6,65 @@ var config = require('../config');
 var showdown = require('showdown');
 var markdownConverter = new showdown.Converter();
 
+const makeSiteUrl = (category, tag, iface) => {
+    if (iface == 'ulogs') {
+        return `https://ulogs.org/${category}/${tag}`
+    } else {
+        return `https://steemit.com/${category}/${tag}`
+    }
+}
+
+const makeFeedItemUrl = (url, iface) => {
+    if (iface == 'ulogs') {
+        return `https://ulogs.org${url}`
+    } else {
+        return `https://steemit.com${url}`
+    }
+}
+
+const makeUserProfileURL = (username, type, iface) => {
+    if (iface == 'ulogs') {
+        return `https://ulogs.org/@${username}/${type}`
+    } else {
+        return `https://steemit.com/@${username}/${type}`;
+    }
+}
+
+const rssGeneratorUser = async (username, type, iface) => {
+
+    var feedQueryParams = iface == '' ? '' : `?interface=${iface}`
+
+    const feedOption = {
+        title: `Posts from @${username}'s ${type}`,
+        feed_url: `${config.FEED_URL}/@${username}/${type}${feedQueryParams}`,
+        site_url: makeUserProfileURL(username,type,iface),
+        image_url: 'https://steemit.com/images/steemit-share.png',
+        docs: 'https://github.com/steemrss/steemrss'
+    } 
+
+        const apiResponse = await getContent(type, username)
+        const feed = new RSS(feedOption)
+        const completedFeed = await feedItem(feed, apiResponse, iface)
+        return completedFeed.xml()
+}
+
+const rssGeneratorTopic = async (category, tag, iface) => {
+
+    var feedQueryParams = iface == '' ? '' : `?interface=${iface}`
+
+    const feedOption = {
+        title: `${category} ${tag} posts`,
+        feed_url: `${config.FEED_URL}/${category}/${tag}${feedQueryParams}`,
+        site_url: makeSiteUrl(category,tag,iface),
+        image_url: 'https://steemit.com/images/steemit-share.png',
+        docs: 'https://github.com/steemrss/steemrss'
+    } 
+
+        const apiResponse = await getContent(category, tag)
+        const feed = new RSS(feedOption)
+        const completedFeed = await feedItem(feed, apiResponse, iface)
+        return completedFeed.xml()
+}
 
 const getDiscussionsByCreated = promisify(steem.api.getDiscussionsByCreated);
 const getDiscussionsByFeed = promisify(steem.api.getDiscussionsByFeed);
@@ -16,42 +75,6 @@ const getDiscussionsByPromoted = promisify(steem.api.getDiscussionsByPromoted);
 const getDiscussionsByComments = promisify(steem.api.getDiscussionsByComments);
 const getDiscussionsByVotes = promisify(steem.api.getDiscussionsByVotes);
 const getDiscussionsByCashout = promisify(steem.api.getDiscussionsByCashout);
-
-const rssGeneratorUser = async (username, type) => {
-
-    const feedOption = {
-        title: `Posts from @${username}'s ${type}`,
-        feed_url: `${config.FEED_URL}/@${username}/${type}`,
-        site_url: `${makeUserProfileURL(username,type)}`,
-        image_url: 'https://steemit.com/images/steemit-share.png',
-        docs: 'https://github.com/steemrss/steemrss'
-    } 
-
-        const apiResponse = await getContent(type, username)
-        const feed = new RSS(feedOption)
-        const completedFeed = await feedItem(feed, apiResponse)
-        return completedFeed.xml()
-}
-
-
-const rssGeneratorTopic = async (category, tag) => {
-    const feedOption = {
-        title: `${category} ${tag} posts`,
-        feed_url: `${config.FEED_URL}/${category}/${tag}`,
-        site_url: `https://steemit.com/${category}/${tag}`,
-        image_url: 'https://steemit.com/images/steemit-share.png',
-        docs: 'https://github.com/steemrss/steemrss'
-    } 
-
-        const apiResponse = await getContent(category, tag)
-        const feed = new RSS(feedOption)
-        const completedFeed = await feedItem(feed, apiResponse)
-        return completedFeed.xml()
-}
-
-const makeUserProfileURL = (username, type) => {
-    return `https://steemit.com/@${username}/${type}`;
-}
 
 const methodMap = {
     'feed': (query) => getDiscussionsByFeed(query),
@@ -70,12 +93,11 @@ const getContent = async (category, tag) => methodMap.hasOwnProperty(category) ?
                                             await methodMap[category]({tag, limit: 10}) :
                                             Promise.reject({status: 400, message: "Unknown Category"})
 
-
-const feedItem = async (feed, response) => {
+const feedItem = async (feed, response, iface) => {
     response.forEach(({title, url, author, category, created: date, body}) => {
         feed.item({
             title,
-            url: `https://steemit.com${url}`,
+            url: makeFeedItemUrl(url,iface),
             categories: [category],
             author,
             date,
