@@ -13,7 +13,7 @@ var getInterface = function (query) {
         return query['interface']
       }
     } 
-  return 'steemit'
+  return ''
 }
 
 
