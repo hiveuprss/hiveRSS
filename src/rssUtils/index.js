@@ -30,7 +30,7 @@ const makeUserProfileURL = (username, type, iface) => {
     }
 }
 
-const rssGeneratorUser = async (username, type, iface) => {
+const rssGeneratorUser = async (username, type, iface, limit) => {
 
     var feedQueryParams = iface == '' ? '' : `?interface=${iface}`
 
@@ -42,13 +42,13 @@ const rssGeneratorUser = async (username, type, iface) => {
         docs: 'https://github.com/steemrss/steemrss'
     } 
 
-        const apiResponse = await getContent(type, username)
+        const apiResponse = await getContent(type, username, limit)
         const feed = new RSS(feedOption)
         const completedFeed = await feedItem(feed, apiResponse, iface)
         return completedFeed.xml()
 }
 
-const rssGeneratorTopic = async (category, tag, iface) => {
+const rssGeneratorTopic = async (category, tag, iface, limit) => {
 
     var feedQueryParams = iface == '' ? '' : `?interface=${iface}`
 
@@ -60,7 +60,7 @@ const rssGeneratorTopic = async (category, tag, iface) => {
         docs: 'https://github.com/steemrss/steemrss'
     } 
 
-        const apiResponse = await getContent(category, tag)
+        const apiResponse = await getContent(category, tag, limit)
         const feed = new RSS(feedOption)
         const completedFeed = await feedItem(feed, apiResponse, iface)
         return completedFeed.xml()
@@ -89,8 +89,8 @@ const methodMap = {
     'cashout': (query) => getDiscussionsByCashout(query),
 }
 
-const getContent = async (category, tag) => methodMap.hasOwnProperty(category) ?
-                                            await methodMap[category]({tag, limit: 10}) :
+const getContent = async (category, tag, limit) => methodMap.hasOwnProperty(category) ?
+                                            await methodMap[category]({tag, limit: limit}) :
                                             Promise.reject({status: 400, message: "Unknown Category"})
 
 const feedItem = async (feed, response, iface) => {
