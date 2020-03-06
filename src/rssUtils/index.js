@@ -7,27 +7,45 @@ var showdown = require('showdown');
 var markdownConverter = new showdown.Converter();
 
 const makeSiteUrl = (category, tag, iface) => {
+    var site = 'https://steemit.com'
+    
     if (iface == 'ulogs') {
-        return `https://ulogs.org/${category}/${tag}`
-    } else {
-        return `https://steemit.com/${category}/${tag}`
+        site = 'https://ulogs.org'
+    } else if (iface == 'steempeak') {
+        site = 'https://steempeak.com'
+    } else if (iface == 'esteem') {
+        site = 'https://esteem.app'
     }
+
+    return `${site}/${category}/${tag}`
 }
 
 const makeFeedItemUrl = (url, iface) => {
+    var site = 'https://steemit.com'
+    
     if (iface == 'ulogs') {
-        return `https://ulogs.org${url}`
-    } else {
-        return `https://steemit.com${url}`
+        site = 'https://ulogs.org'
+    } else if (iface == 'steempeak') {
+        site = 'https://steempeak.com'
+    } else if (iface == 'esteem') {
+        site = 'https://esteem.app'
     }
+
+    return `${site}/${url}`
 }
 
 const makeUserProfileURL = (username, type, iface) => {
+    var site = 'https://steemit.com'
+    
     if (iface == 'ulogs') {
-        return `https://ulogs.org/@${username}/${type}`
-    } else {
-        return `https://steemit.com/@${username}/${type}`;
+        site = 'https://ulogs.org'
+    } else if (iface == 'steempeak') {
+        site = 'https://steempeak.com'
+    } else if (iface == 'esteem') {
+        site = 'https://esteem.app'
     }
+
+    return `${site}/@${username}/${type}`
 }
 
 const rssGeneratorUser = async (username, type, iface, limit) => {
@@ -38,7 +56,7 @@ const rssGeneratorUser = async (username, type, iface, limit) => {
         title: `Posts from @${username}'s ${type}`,
         feed_url: `${config.FEED_URL}/@${username}/${type}${feedQueryParams}`,
         site_url: makeUserProfileURL(username,type,iface),
-        image_url: 'https://steemit.com/images/steemit-share.png',
+        image_url: 'https://steem.com/wp-content/themes/goat-steemit/dist/images/Steem_Logo_White.png',
         docs: 'https://github.com/steemrss/steemrss'
     } 
 
@@ -56,7 +74,7 @@ const rssGeneratorTopic = async (category, tag, iface, limit) => {
         title: `${category} ${tag} posts`,
         feed_url: `${config.FEED_URL}/${category}/${tag}${feedQueryParams}`,
         site_url: makeSiteUrl(category,tag,iface),
-        image_url: 'https://steemit.com/images/steemit-share.png',
+        image_url: 'https://steem.com/wp-content/themes/goat-steemit/dist/images/Steem_Logo_White.png',
         docs: 'https://github.com/steemrss/steemrss'
     } 
 
@@ -75,10 +93,14 @@ const getDiscussionsByPromoted = promisify(steem.api.getDiscussionsByPromoted);
 const getDiscussionsByComments = promisify(steem.api.getDiscussionsByComments);
 const getDiscussionsByVotes = promisify(steem.api.getDiscussionsByVotes);
 const getDiscussionsByCashout = promisify(steem.api.getDiscussionsByCashout);
+const getDiscussionsByAuthorBeforeDate = promisify(steem.api.getDiscussionsByAuthorBeforeDate);
 
 const methodMap = {
     'feed': (query) => getDiscussionsByFeed(query),
     'blog': (query) => getDiscussionsByBlog(query),
+    'blogWithoutResteems': (query) => getDiscussionsByAuthorBeforeDate({author: query.tag,
+                                                                        startPermlink: '3-25',
+                                                                        beforeDate: new Date().toISOString().split('.')[0]}),
     'new': (query) => getDiscussionsByCreated(query),
     'created': (query) => getDiscussionsByCreated(query),
     'hot': (query) => getDiscussionsByHot(query),
