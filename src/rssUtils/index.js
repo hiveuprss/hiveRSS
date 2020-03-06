@@ -31,7 +31,7 @@ const makeFeedItemUrl = (url, iface) => {
         site = 'https://esteem.app'
     }
 
-    return `${site}/${url}`
+    return `${site}${url}`
 }
 
 const makeUserProfileURL = (username, type, iface) => {
