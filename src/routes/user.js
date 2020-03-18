@@ -8,7 +8,7 @@ var getInterface = function (query) {
         query !== '' &&
         typeof query['interface'] !== undefined &&
         query['interface'] !== '') {
-      if (['steemit','ulogs','steempeak','esteem'].includes(query['interface'])) {
+      if (['hive','ulogs','steempeak','esteem'].includes(query['interface'])) {
         return query['interface']
       }
     } 

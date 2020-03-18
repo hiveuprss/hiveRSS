@@ -30,7 +30,7 @@ router.get('/', async (ctx, next) => {
 })
 
 
-steem.api.setOptions({ url: 'https://api.steemit.com/' });
+steem.api.setOptions({ url: 'https://api.hive.blog/' });
 const routes = [ router, userRouter, tagRouter ]
 
 export default () => compose([].concat(

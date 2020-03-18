@@ -7,7 +7,7 @@ var showdown = require('showdown');
 var markdownConverter = new showdown.Converter();
 
 const makeSiteUrl = (category, tag, iface) => {
-    var site = 'https://steemit.com'
+    var site = 'https://hive.blog'
     
     if (iface == 'ulogs') {
         site = 'https://ulogs.org'
@@ -21,7 +21,7 @@ const makeSiteUrl = (category, tag, iface) => {
 }
 
 const makeFeedItemUrl = (url, iface) => {
-    var site = 'https://steemit.com'
+    var site = 'https://hive.blog'
     
     if (iface == 'ulogs') {
         site = 'https://ulogs.org'
@@ -35,7 +35,7 @@ const makeFeedItemUrl = (url, iface) => {
 }
 
 const makeUserProfileURL = (username, type, iface) => {
-    var site = 'https://steemit.com'
+    var site = 'https://hive.blog'
     
     if (iface == 'ulogs') {
         site = 'https://ulogs.org'
@@ -57,7 +57,7 @@ const rssGeneratorUser = async (username, type, iface, limit) => {
         feed_url: `${config.FEED_URL}/@${username}/${type}${feedQueryParams}`,
         site_url: makeUserProfileURL(username,type,iface),
         image_url: 'https://steem.com/wp-content/themes/goat-steemit/dist/images/Steem_Logo_White.png',
-        docs: 'https://github.com/steemrss/steemrss'
+        docs: 'https://github.com/hiveuprss/hiverss'
     } 
 
         const apiResponse = await getContent(type, username, limit)
@@ -75,7 +75,7 @@ const rssGeneratorTopic = async (category, tag, iface, limit) => {
         feed_url: `${config.FEED_URL}/${category}/${tag}${feedQueryParams}`,
         site_url: makeSiteUrl(category,tag,iface),
         image_url: 'https://steem.com/wp-content/themes/goat-steemit/dist/images/Steem_Logo_White.png',
-        docs: 'https://github.com/steemrss/steemrss'
+        docs: 'https://github.com/hiveuprss/hiverss'
     } 
 
         const apiResponse = await getContent(category, tag, limit)

@@ -1,1 +1,1 @@
-exports.FEED_URL = 'http://www.steemrss.com';
+exports.FEED_URL = 'http://hiverss.com';

@@ -1,9 +1,9 @@
 {
-  "name": "steem-rss",
+  "name": "hive-rss",
   "version": "1.0.0",
   "description": "",
   "repository": {
-    "url": "github.com/steemrss/steemRSS"
+    "url": "github.com/hiveuprss/hiverss"
   },
   "main": "src/app.js",
   "watch": {
