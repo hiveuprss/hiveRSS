@@ -58,6 +58,6 @@ http://hive.blog/trending/hive -> http://hive***rss***.com/trending/hive
 
 ## Contributors
 
-* Creator of hiverss: [@philipkoon](https://steemit.com/@philipkoon)
-* Contributor: [@doriitamar](https://steemit.com/@doriitamar)
-* Contributor: [@torrey.blog](https://steemit.com/@torrey.blog)
+* Creator of hiverss: [@philipkoon](https://hive.blog/@philipkoon)
+* Contributor: [@doriitamar](https://hive.blog/@doriitamar)
+* Contributor: [@torrey.blog](https://hive.blog/@torrey.blog)
