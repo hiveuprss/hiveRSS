@@ -9,7 +9,9 @@ var markdownConverter = new showdown.Converter();
 const makeSiteUrl = (category, tag, iface) => {
     var site = 'https://hive.blog'
     
-    if (iface == 'ulogs') {
+    if (iface == 'peakd') {
+        site = 'https://peakd.com'
+    } else if (iface == 'ulogs') {
         site = 'https://ulogs.org'
     } else if (iface == 'steempeak') {
         site = 'https://steempeak.com'
@@ -23,7 +25,9 @@ const makeSiteUrl = (category, tag, iface) => {
 const makeFeedItemUrl = (url, iface) => {
     var site = 'https://hive.blog'
     
-    if (iface == 'ulogs') {
+    if (iface == 'peakd') {
+        site = 'https://peakd.com'
+    } else if (iface == 'ulogs') {
         site = 'https://ulogs.org'
     } else if (iface == 'steempeak') {
         site = 'https://steempeak.com'
@@ -37,7 +41,9 @@ const makeFeedItemUrl = (url, iface) => {
 const makeUserProfileURL = (username, type, iface) => {
     var site = 'https://hive.blog'
     
-    if (iface == 'ulogs') {
+    if (iface == 'peakd') {
+        site = 'https://peakd.com'
+    } else if (iface == 'ulogs') {
         site = 'https://ulogs.org'
     } else if (iface == 'steempeak') {
         site = 'https://steempeak.com'
