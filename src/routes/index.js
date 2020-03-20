@@ -19,10 +19,20 @@ fs.readFile('favicon.ico', (err, data) => {
     iconData = data;
 });
 
+var logoData = '';
+fs.readFile('hiverss2.png', (err, data) => {
+    if (err) throw err;
+    logoData = data;
+});
+
 const router = new Router();
 router.get('/favicon.ico', async (ctx, next) => {
     ctx.type = 'image/x-icon'
     ctx.body = iconData   
+})
+router.get('/hiverss2.png', async (ctx, next) => {
+    ctx.type = 'image/png'
+    ctx.body = logoData   
 })
 router.get('/', async (ctx, next) => {
     ctx.type = 'text/html'

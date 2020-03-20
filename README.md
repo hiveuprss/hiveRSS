@@ -1,6 +1,6 @@
 <title>hiveRSS</title>
 
-![HiveRSS Logo](https://steemitimages.com/DQmfLTv5teUHGnXEJa1dkg1pU6WDoLLR5Czn3Tq9QgHjA9X/hiverss.png)
+![HiveRSS Logo](./hiverss2.png)
 
 # HiveRSS [http://hiverss.com](http://www.hiverss.com)
 
