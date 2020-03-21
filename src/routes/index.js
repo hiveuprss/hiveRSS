@@ -25,6 +25,12 @@ fs.readFile('hiverss2.png', (err, data) => {
     logoData = data;
 });
 
+var logoData2 = '';
+fs.readFile('hive_logo.png', (err, data) => {
+    if (err) throw err;
+    logoData2 = data;
+});
+
 const router = new Router();
 router.get('/favicon.ico', async (ctx, next) => {
     ctx.type = 'image/x-icon'
@@ -33,6 +39,10 @@ router.get('/favicon.ico', async (ctx, next) => {
 router.get('/hiverss2.png', async (ctx, next) => {
     ctx.type = 'image/png'
     ctx.body = logoData   
+})
+router.get('/hive_logo.png', async (ctx, next) => {
+    ctx.type = 'image/png'
+    ctx.body = logoData2   
 })
 router.get('/', async (ctx, next) => {
     ctx.type = 'text/html'

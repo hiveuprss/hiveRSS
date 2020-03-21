@@ -62,7 +62,7 @@ const rssGeneratorUser = async (username, type, iface, limit) => {
         title: `Posts from @${username}'s ${type}`,
         feed_url: `${config.FEED_URL}/@${username}/${type}${feedQueryParams}`,
         site_url: makeUserProfileURL(username,type,iface),
-        image_url: 'https://steem.com/wp-content/themes/goat-steemit/dist/images/Steem_Logo_White.png',
+        image_url: 'http://www.hiverss.com/hive_logo.png',
         docs: 'https://github.com/hiveuprss/hiverss'
     } 
 
@@ -80,7 +80,7 @@ const rssGeneratorTopic = async (category, tag, iface, limit) => {
         title: `${category} ${tag} posts`,
         feed_url: `${config.FEED_URL}/${category}/${tag}${feedQueryParams}`,
         site_url: makeSiteUrl(category,tag,iface),
-        image_url: 'https://steem.com/wp-content/themes/goat-steemit/dist/images/Steem_Logo_White.png',
+        image_url: 'http://www.hiverss.com/hive_logo.png',
         docs: 'https://github.com/hiveuprss/hiverss'
     } 
 
