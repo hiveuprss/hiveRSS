@@ -6,9 +6,10 @@ var config = require('../config');
 var showdown = require('showdown');
 var markdownConverter = new showdown.Converter();
 
-const makeSiteUrl = (category, tag, iface) => {
-    var site = 'https://hive.blog'
-    
+
+const makeInterfaceUrl = (iface) => {
+
+  var site = 'https://hive.blog'
     if (iface == 'peakd') {
         site = 'https://peakd.com'
     } else if (iface == 'ulogs') {
@@ -18,45 +19,60 @@ const makeSiteUrl = (category, tag, iface) => {
     } else if (iface == 'esteem') {
         site = 'https://esteem.app'
     }
+  return site;
+}
 
+
+const makeSiteUrl = (category, tag, iface) => {
+    var site = makeInterfaceUrl(iface);
     return `${site}/${category}/${tag}`
 }
 
-const makeFeedItemUrl = (url, iface) => {
-    var site = 'https://hive.blog'
-    
-    if (iface == 'peakd') {
-        site = 'https://peakd.com'
-    } else if (iface == 'ulogs') {
-        site = 'https://ulogs.org'
-    } else if (iface == 'steempeak') {
-        site = 'https://steempeak.com'
-    } else if (iface == 'esteem') {
-        site = 'https://esteem.app'
-    }
 
+const makeFeedItemUrl = (url, iface) => {
+    var site = makeInterfaceUrl(iface);
     return `${site}${url}`
 }
 
-const makeUserProfileURL = (username, type, iface) => {
-    var site = 'https://hive.blog'
-    
-    if (iface == 'peakd') {
-        site = 'https://peakd.com'
-    } else if (iface == 'ulogs') {
-        site = 'https://ulogs.org'
-    } else if (iface == 'steempeak') {
-        site = 'https://steempeak.com'
-    } else if (iface == 'esteem') {
-        site = 'https://esteem.app'
-    }
 
+const makeFeedItemUrlFromVote = (author, permlink, iface) => {
+    var site = makeInterfaceUrl(iface);
+    return `${site}/@${author}/${permlink}`    
+}
+
+
+const makeUserProfileURL = (username, type, iface) => {
+    var site = makeInterfaceUrl(iface);
     return `${site}/@${username}/${type}`
 }
 
-const rssGeneratorUser = async (username, type, iface, limit) => {
 
-    var feedQueryParams = iface == '' ? '' : `?interface=${iface}`
+const buildFeedQueryParams = (iface, limit, minVotePct = NaN) => {
+
+    var paramsList = []
+    if (iface.length > 0) {
+        paramsList.push(`interface=${iface}`)
+    }
+    if (limit != 10) {
+        paramsList.push(`limit=${limit}`)
+    }
+    if (minVotePct != 0 && !isNaN(minVotePct)) {
+        paramsList.push(`minVotePct=${minVotePct}`)
+    }
+
+    var feedQueryParams = paramsList.join('&')
+
+    if (feedQueryParams.length > 0) {
+        feedQueryParams = `?${feedQueryParams}`
+    }
+
+    return feedQueryParams
+}
+
+
+const rssGeneratorUser = async (username, type, iface, limit) => {
+    
+    var feedQueryParams = buildFeedQueryParams(iface, limit)
 
     const feedOption = {
         title: `Posts from @${username}'s ${type}`,
@@ -66,15 +82,16 @@ const rssGeneratorUser = async (username, type, iface, limit) => {
         docs: 'https://github.com/hiveuprss/hiverss'
     } 
 
-        const apiResponse = await getContent(type, username, limit)
+        const apiResponse = await getFeedContent(type, username, limit)
         const feed = new RSS(feedOption)
         const completedFeed = await feedItem(feed, apiResponse, iface)
         return completedFeed.xml()
 }
 
-const rssGeneratorTopic = async (category, tag, iface, limit) => {
 
-    var feedQueryParams = iface == '' ? '' : `?interface=${iface}`
+const rssGeneratorTopic = async (category, tag, iface, limit) => {
+    
+    var feedQueryParams = buildFeedQueryParams(iface, limit)
 
     const feedOption = {
         title: `${category} ${tag} posts`,
@@ -84,11 +101,50 @@ const rssGeneratorTopic = async (category, tag, iface, limit) => {
         docs: 'https://github.com/hiveuprss/hiverss'
     } 
 
-        const apiResponse = await getContent(category, tag, limit)
+        const apiResponse = await getFeedContent(category, tag, limit)
         const feed = new RSS(feedOption)
         const completedFeed = await feedItem(feed, apiResponse, iface)
         return completedFeed.xml()
 }
+
+
+const rssGeneratorVoter = async (voter, iface, limit, minVotePct) => {
+
+    var feedQueryParams = buildFeedQueryParams(iface, limit, minVotePct)
+
+    const feedOption = {
+        title: `Hive posts voted by @${voter}`,
+        feed_url: `${config.FEED_URL}/@${voter}/votes${feedQueryParams}`,
+        site_url: makeUserProfileURL(voter, 'feed', iface),
+        image_url: 'http://www.hiverss.com/hive_logo.png',
+        docs: 'https://github.com/hiveuprss/hiverss'
+    } 
+    
+    const apiResponse = await steem.api.callAsync('database_api.list_votes',
+        {start:[voter,"",""], limit:1000, order:"by_voter_comment"})
+
+    // this code will have an issue if account has voted more than 1000 times in the past 7 days
+    // votes after #1000 will be skipped
+    // the API does not provide a way to get latest votes first
+    
+    // remove other voters
+    var filteredVoteList = apiResponse.votes.filter((x) => {return x.voter == voter})
+
+    // remove votes below minVotePct
+    var filteredVoteList = filteredVoteList.filter((x) => {return x.vote_percent >= (minVotePct * 100)})
+
+    // put latest vote first
+    var filteredVoteList = filteredVoteList.reverse()
+
+    // trim to limit
+    var limit = Math.min(limit, filteredVoteList.length)
+    filteredVoteList = filteredVoteList.slice(0,limit)
+
+    const feed = new RSS(feedOption)
+    const completedFeed = await feedItemVoted(feed, filteredVoteList, iface)
+    return completedFeed.xml()
+}
+
 
 const getDiscussionsByCreated = promisify(steem.api.getDiscussionsByCreated);
 const getDiscussionsByFeed = promisify(steem.api.getDiscussionsByFeed);
@@ -97,9 +153,8 @@ const getDiscussionsByHot = promisify(steem.api.getDiscussionsByHot);
 const getDiscussionsByTrending = promisify(steem.api.getDiscussionsByTrending);
 const getDiscussionsByPromoted = promisify(steem.api.getDiscussionsByPromoted);
 const getDiscussionsByComments = promisify(steem.api.getDiscussionsByComments);
-const getDiscussionsByVotes = promisify(steem.api.getDiscussionsByVotes);
-const getDiscussionsByCashout = promisify(steem.api.getDiscussionsByCashout);
 const getDiscussionsByAuthorBeforeDate = promisify(steem.api.getDiscussionsByAuthorBeforeDate);
+
 
 const methodMap = {
     'feed': (query) => getDiscussionsByFeed(query),
@@ -112,14 +167,14 @@ const methodMap = {
     'hot': (query) => getDiscussionsByHot(query),
     'trending': (query) => getDiscussionsByTrending(query),
     'promoted': (query) => getDiscussionsByPromoted(query),
-    'comments': (query) => getDiscussionsByComments({limit: query.limit, start_author: query.tag}),
-    'votes': (query) => getDiscussionsByVotes(query),
-    'cashout': (query) => getDiscussionsByCashout(query),
+    'comments': (query) => getDiscussionsByComments({limit: query.limit, start_author: query.tag})
 }
 
-const getContent = async (category, tag, limit) => methodMap.hasOwnProperty(category) ?
+
+const getFeedContent = async (category, tag, limit) => methodMap.hasOwnProperty(category) ?
                                             await methodMap[category]({tag, limit: limit}) :
                                             Promise.reject({status: 400, message: "Unknown Category"})
+
 
 const feedItem = async (feed, response, iface) => {
     response.forEach(({title, url, author, category, created: date, body}) => {
@@ -136,7 +191,23 @@ const feedItem = async (feed, response, iface) => {
     return feed
 }
 
+
+const feedItemVoted = async (feed, response, iface) => {
+    response.forEach(({permlink, author, last_update: date, vote_percent}) => {
+        feed.item({
+            url: makeFeedItemUrlFromVote(author,permlink,iface),
+            author,
+            date,
+            description: `Vote weight: ${vote_percent / 100}%`
+        })
+    });
+
+    return feed
+}
+
+
 module.exports = {
     rssGeneratorTopic: rssGeneratorTopic,
-    rssGeneratorUser: rssGeneratorUser
+    rssGeneratorUser: rssGeneratorUser,
+    rssGeneratorVoter: rssGeneratorVoter
 }
