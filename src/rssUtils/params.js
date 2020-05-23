@@ -47,10 +47,26 @@ var getMinVote = function (query) {
   return 0
 }
 
+var getTagFilter = function (query) {
+  if (query !== undefined && 
+    Object.keys(query).length !== 0 &&
+    query['tagFilter'] !== undefined &&
+    query['tagFilter'] !== '' &&
+    query['tagFilter'].length > 0 && 
+    query['tagFilter'].length < 100) {
+
+      let tagFilter = query['tagFilter'].toLowerCase()
+
+      return tagFilter
+  }
+  return ''
+}
+
 
 
 module.exports = {
     getInterface: getInterface,
     getLimit: getLimit,
-    getMinVote: getMinVote
+    getMinVote: getMinVote,
+    getTagFilter: getTagFilter
 }

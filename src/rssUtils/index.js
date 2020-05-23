@@ -70,7 +70,7 @@ const buildFeedQueryParams = (iface, limit, minVotePct = NaN) => {
 }
 
 
-const rssGeneratorUser = async (username, type, iface, limit) => {
+const rssGeneratorUser = async (username, type, iface, limit, tagFilter='') => {
     
     var feedQueryParams = buildFeedQueryParams(iface, limit)
 
@@ -83,13 +83,21 @@ const rssGeneratorUser = async (username, type, iface, limit) => {
     } 
 
         const apiResponse = await getFeedContent(type, username, limit)
+        var filteredPostList = apiResponse
+
+        if (tagFilter.length > 0) {
+            var filteredPostList = apiResponse.filter((x) => {
+                return JSON.parse(x.json_metadata.toLowerCase()).tags.includes(tagFilter)
+            })            
+        }
+
         const feed = new RSS(feedOption)
-        const completedFeed = await feedItem(feed, apiResponse, iface)
+        const completedFeed = await feedItem(feed, filteredPostList, iface)
         return completedFeed.xml()
 }
 
 
-const rssGeneratorTopic = async (category, tag, iface, limit) => {
+const rssGeneratorTopic = async (category, tag, iface, limit, tagFilter='') => {
     
     var feedQueryParams = buildFeedQueryParams(iface, limit)
 
@@ -102,8 +110,15 @@ const rssGeneratorTopic = async (category, tag, iface, limit) => {
     } 
 
         const apiResponse = await getFeedContent(category, tag, limit)
+        var filteredPostList = apiResponse
+
+        if (tagFilter.length > 0) {
+            var filteredPostList = apiResponse.filter((x) => {
+                return JSON.parse(x.json_metadata.toLowerCase()).tags.includes(tagFilter)
+            })            
+        }
         const feed = new RSS(feedOption)
-        const completedFeed = await feedItem(feed, apiResponse, iface)
+        const completedFeed = await feedItem(feed, filteredPostList, iface)
         return completedFeed.xml()
 }
 

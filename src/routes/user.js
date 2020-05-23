@@ -1,6 +1,6 @@
 import Router from 'koa-router'
 import {rssGeneratorUser,rssGeneratorVoter} from '../rssUtils'
-import {getInterface,getLimit,getMinVote} from '../rssUtils/params'
+import {getInterface,getLimit,getMinVote,getTagFilter} from '../rssUtils/params'
 
 
 const router = new Router({ prefix: '/@' })
@@ -18,7 +18,7 @@ router.get(':username/:type', async (ctx, next) => {
 
 router.get(':username', async (ctx, next) => {
     ctx.type = 'text/xml'
-    ctx.body = await rssGeneratorUser(ctx.params.username, 'blog', getInterface(ctx.query), getLimit(ctx.query))   
+    ctx.body = await rssGeneratorUser(ctx.params.username, 'blog', getInterface(ctx.query), getLimit(ctx.query), getTagFilter(ctx.query))   
 })
 
 export default router
