@@ -28,6 +28,12 @@ Get posts from your favorite steemian.
 
 * [hiverss.com/@philipkoon/blog](http://hiverss.com/@philipkoon/blog)
 
+Filter posts to show only posts matching a tag
+
+> `hiverss.com/@username?tagFilter=tag`
+
+* [hiverss.com/@sajannair?tagFilter=travel](http://hiverss.com/@sajannair?tagFilter=travel)
+
 ### Comments By Author
 
 Get comments from your favorite steemian.
