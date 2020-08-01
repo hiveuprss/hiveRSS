@@ -22,7 +22,7 @@ Get posts from your feeds or others' as well.
 
 ### Posts By Author
 
-Get posts from your favorite steemian.
+Get posts from your favorite hiver.
 
 > `hiverss.com/@<username>/blog`
 
@@ -36,7 +36,7 @@ Filter posts to show only posts matching a tag
 
 ### Comments By Author
 
-Get comments from your favorite steemian.
+Get comments from your favorite hiver.
 
 > `hiverss.com/@<username>/comments`
 
