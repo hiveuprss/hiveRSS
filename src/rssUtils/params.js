@@ -5,7 +5,7 @@ var getInterface = function (query) {
         Object.keys(query).length !== 0 &&
         query['interface'] !== undefined &&
         query['interface'] !== '') {
-      if (['hive','peakd','ulogs','steempeak','esteem'].includes(query['interface'])) {
+      if (['hive','peakd','ulogs','steempeak','esteem','ecency','leofinance'].includes(query['interface'])) {
         return query['interface']
       }
     } 

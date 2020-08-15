@@ -18,6 +18,10 @@ const makeInterfaceUrl = (iface) => {
         site = 'https://steempeak.com'
     } else if (iface == 'esteem') {
         site = 'https://esteem.app'
+    } else if (iface == 'ecency') {
+        site = 'https://ecency.com'
+    } else if (iface == 'leofinance') {
+        site = 'https://leofinance.io'
     }
   return site;
 }
