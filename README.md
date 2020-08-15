@@ -69,11 +69,22 @@ Only include votes above a specific percentage weight, and link to non-default i
 
 * [http://hiverss.com/@ocdb/votes?minVotePct=100&interface=peakd](http://hiverss.com/@ocdb/votes?minVotePct=100&interface=peakd)
 
+## Supported Hive Frontends 
 
+Use with the query parameter 'interface'. See examples below.
 
+* Hive.blog (default)
+> `http://hiverss.com/@<username>`
+* PeakD.com
+> `http://hiverss.com/@<username>?interface=peakd`
+* Ecency.com
+> `http://hiverss.com/@<username>?interface=ecency`
+* LeoFinance.io 
+> `http://hiverss.com/@<username>?interface=leofinance`
 
 ## Contributors
 
 * Creator of SteemRSS: [@philipkoon](https://hive.blog/@philipkoon)
 * SteemRSS Contributor: [@doriitamar](https://hive.blog/@doriitamar)
 * HiveRSS Maintainer: [@torrey.blog](https://hive.blog/@torrey.blog)
+* HiveRSS Maintainer: [@hivetrending](https://hive.blog/@hivetrending) Twitter: [@HiveTrending](https://twitter.com/hivetrending)
