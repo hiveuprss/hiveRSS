@@ -27,27 +27,46 @@ const makeInterfaceUrl = (iface) => {
 }
 
 
-const makeSiteUrl = (category, tag, iface) => {
+const makeSiteUrl = (category, tag, iface, refer) => {
     var site = makeInterfaceUrl(iface);
-    return `${site}/${category}/${tag}`
+    var url = `${site}/${category}/${tag}`
+    if (refer) {
+        url += `?ref=${refer}`
+    }
+    return url
 }
 
 
-const makeFeedItemUrl = (url, iface) => {
+const makeFeedItemUrl = (url, iface, refer) => {
     var site = makeInterfaceUrl(iface);
-    return `${site}${url}`
+    var url = `${site}${url}`
+
+    if (refer) {
+        url += `?ref=${refer}`
+    }
+    return url
 }
 
 
-const makeFeedItemUrlFromVote = (author, permlink, iface) => {
+const makeFeedItemUrlFromVote = (author, permlink, iface, refer) => {
     var site = makeInterfaceUrl(iface);
-    return `${site}/@${author}/${permlink}`    
+    var url = `${site}/@${author}/${permlink}`
+
+    if (refer) {
+        url += `?ref=${refer}`
+    }
+    return url
 }
 
 
-const makeUserProfileURL = (username, type, iface) => {
+const makeUserProfileURL = (username, type, iface, refer) => {
     var site = makeInterfaceUrl(iface);
-    return `${site}/@${username}/${type}`
+    var url = `${site}/@${username}/${type}`
+
+    if (refer) {
+        url += `?ref=${refer}`
+    }
+    return url
 }
 
 
@@ -74,14 +93,14 @@ const buildFeedQueryParams = (iface, limit, minVotePct = NaN) => {
 }
 
 
-const rssGeneratorUser = async (username, type, iface, limit, tagFilter='') => {
+const rssGeneratorUser = async (username, type, iface, limit, tagFilter, refer) => {
     
     var feedQueryParams = buildFeedQueryParams(iface, limit)
 
     const feedOption = {
         title: `Posts from @${username}'s ${type}`,
         feed_url: `${config.FEED_URL}/@${username}/${type}${feedQueryParams}`,
-        site_url: makeUserProfileURL(username,type,iface),
+        site_url: makeUserProfileURL(username,type,iface,refer),
         image_url: 'http://www.hiverss.com/hive_logo.png',
         docs: 'https://github.com/hiveuprss/hiverss'
     } 
@@ -96,19 +115,19 @@ const rssGeneratorUser = async (username, type, iface, limit, tagFilter='') => {
         }
 
         const feed = new RSS(feedOption)
-        const completedFeed = await feedItem(feed, filteredPostList, iface)
+        const completedFeed = await feedItem(feed, filteredPostList, iface, refer)
         return completedFeed.xml()
 }
 
 
-const rssGeneratorTopic = async (category, tag, iface, limit, tagFilter='') => {
+const rssGeneratorTopic = async (category, tag, iface, limit, tagFilter, refer) => {
     
     var feedQueryParams = buildFeedQueryParams(iface, limit)
 
     const feedOption = {
         title: `${category} ${tag} posts`,
         feed_url: `${config.FEED_URL}/${category}/${tag}${feedQueryParams}`,
-        site_url: makeSiteUrl(category,tag,iface),
+        site_url: makeSiteUrl(category,tag,iface,refer),
         image_url: 'http://www.hiverss.com/hive_logo.png',
         docs: 'https://github.com/hiveuprss/hiverss'
     } 
@@ -122,19 +141,19 @@ const rssGeneratorTopic = async (category, tag, iface, limit, tagFilter='') => {
             })            
         }
         const feed = new RSS(feedOption)
-        const completedFeed = await feedItem(feed, filteredPostList, iface)
+        const completedFeed = await feedItem(feed, filteredPostList, iface, refer)
         return completedFeed.xml()
 }
 
 
-const rssGeneratorVoter = async (voter, iface, limit, minVotePct) => {
+const rssGeneratorVoter = async (voter, iface, limit, minVotePct, tagFilter, refer) => {
 
     var feedQueryParams = buildFeedQueryParams(iface, limit, minVotePct)
 
     const feedOption = {
         title: `Hive posts voted by @${voter}`,
         feed_url: `${config.FEED_URL}/@${voter}/votes${feedQueryParams}`,
-        site_url: makeUserProfileURL(voter, 'feed', iface),
+        site_url: makeUserProfileURL(voter, 'feed', iface, refer),
         image_url: 'http://www.hiverss.com/hive_logo.png',
         docs: 'https://github.com/hiveuprss/hiverss'
     } 
@@ -160,7 +179,7 @@ const rssGeneratorVoter = async (voter, iface, limit, minVotePct) => {
     filteredVoteList = filteredVoteList.slice(0,limit)
 
     const feed = new RSS(feedOption)
-    const completedFeed = await feedItemVoted(feed, filteredVoteList, iface)
+    const completedFeed = await feedItemVoted(feed, filteredVoteList, iface, refer)
     return completedFeed.xml()
 }
 
@@ -195,11 +214,11 @@ const getFeedContent = async (category, tag, limit) => methodMap.hasOwnProperty(
                                             Promise.reject({status: 400, message: "Unknown Category"})
 
 
-const feedItem = async (feed, response, iface) => {
+const feedItem = async (feed, response, iface, refer) => {
     response.forEach(({title, url, author, category, created: date, body}) => {
         feed.item({
             title,
-            url: makeFeedItemUrl(url,iface),
+            url: makeFeedItemUrl(url,iface,refer),
             categories: [category],
             author,
             date,
@@ -211,10 +230,10 @@ const feedItem = async (feed, response, iface) => {
 }
 
 
-const feedItemVoted = async (feed, response, iface) => {
+const feedItemVoted = async (feed, response, iface, refer) => {
     response.forEach(({permlink, author, last_update: date, vote_percent}) => {
         feed.item({
-            url: makeFeedItemUrlFromVote(author,permlink,iface),
+            url: makeFeedItemUrlFromVote(author,permlink,iface,refer),
             author,
             date,
             description: `Vote weight: ${vote_percent / 100}%`

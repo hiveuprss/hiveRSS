@@ -62,11 +62,26 @@ var getTagFilter = function (query) {
   return ''
 }
 
+var getRefer = function (query) {
+  if (query != undefined && 
+    Object.keys(query).length !== 0 &&
+    query['ref'] !== undefined &&
+    query['ref'] !== '' &&
+    query['ref'].length > 0 && 
+    query['ref'].length < 32) {
+
+    let refer = query['ref'].toLowerCase()
+
+    return refer
+  }
+  return ''
+}
 
 
 module.exports = {
     getInterface: getInterface,
     getLimit: getLimit,
     getMinVote: getMinVote,
-    getTagFilter: getTagFilter
+    getTagFilter: getTagFilter,
+    getRefer: getRefer
 }
