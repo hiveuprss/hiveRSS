@@ -2,10 +2,10 @@ import compose from 'koa-compose'
 import Router from 'koa-router'
 import tagRouter from './tag'
 import userRouter from './user'
-import steem from 'steem'
+const hive = require('@hiveio/hive-js');
 const fs = require('fs');
 const showdown = require('showdown');
-var markdownConverter = new showdown.Converter();
+const markdownConverter = new showdown.Converter();
 
 var homepageContent = '';
 fs.readFile('README.md', 'utf8', (err, data) => {
@@ -50,7 +50,7 @@ router.get('/', async (ctx, next) => {
 })
 
 
-steem.api.setOptions({ url: 'https://anyx.io/' });
+hive.api.setOptions({ url: 'https://anyx.io/' });
 const routes = [ router, userRouter, tagRouter ]
 
 export default () => compose([].concat(

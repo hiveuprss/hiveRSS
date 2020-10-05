@@ -1,10 +1,10 @@
-import steem from 'steem'
 import RSS from 'rss'
 import xml from 'xml'
 import { promisify } from 'util'
-var config = require('../config');
-var showdown = require('showdown');
-var markdownConverter = new showdown.Converter();
+const hive = require('@hiveio/hive-js');
+const config = require('../config');
+const showdown = require('showdown');
+const markdownConverter = new showdown.Converter();
 
 
 const makeInterfaceUrl = (iface) => {
@@ -158,7 +158,7 @@ const rssGeneratorVoter = async (voter, iface, limit, minVotePct, tagFilter, ref
         docs: 'https://github.com/hiveuprss/hiverss'
     } 
     
-    const apiResponse = await steem.api.callAsync('database_api.list_votes',
+    const apiResponse = await hive.api.callAsync('database_api.list_votes',
         {start:[voter,"",""], limit:1000, order:"by_voter_comment"})
 
     // this code will have an issue if account has voted more than 1000 times in the past 7 days
@@ -184,14 +184,14 @@ const rssGeneratorVoter = async (voter, iface, limit, minVotePct, tagFilter, ref
 }
 
 
-const getDiscussionsByCreated = promisify(steem.api.getDiscussionsByCreated);
-const getDiscussionsByFeed = promisify(steem.api.getDiscussionsByFeed);
-const getDiscussionsByBlog = promisify(steem.api.getDiscussionsByBlog);
-const getDiscussionsByHot = promisify(steem.api.getDiscussionsByHot);
-const getDiscussionsByTrending = promisify(steem.api.getDiscussionsByTrending);
-const getDiscussionsByPromoted = promisify(steem.api.getDiscussionsByPromoted);
-const getDiscussionsByComments = promisify(steem.api.getDiscussionsByComments);
-const getDiscussionsByAuthorBeforeDate = promisify(steem.api.getDiscussionsByAuthorBeforeDate);
+const getDiscussionsByCreated = promisify(hive.api.getDiscussionsByCreated);
+const getDiscussionsByFeed = promisify(hive.api.getDiscussionsByFeed);
+const getDiscussionsByBlog = promisify(hive.api.getDiscussionsByBlog);
+const getDiscussionsByHot = promisify(hive.api.getDiscussionsByHot);
+const getDiscussionsByTrending = promisify(hive.api.getDiscussionsByTrending);
+const getDiscussionsByPromoted = promisify(hive.api.getDiscussionsByPromoted);
+const getDiscussionsByComments = promisify(hive.api.getDiscussionsByComments);
+const getDiscussionsByAuthorBeforeDate = promisify(hive.api.getDiscussionsByAuthorBeforeDate);
 
 
 const methodMap = {
