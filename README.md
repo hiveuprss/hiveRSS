@@ -77,7 +77,7 @@ Use with the query parameter 'interface'. See examples below.
 * PeakD.com `http://hiverss.com/@<username>?interface=peakd`
 * Ecency.com `http://hiverss.com/@<username>?interface=ecency`
 * LeoFinance.io `http://hiverss.com/@<username>?interface=leofinance`
-* Hivelist.io `http://hiverss.com/@<username>?interface=hivelist`
+* Hivelist.org `http://hiverss.com/@<username>?interface=hivelist`
 
 ## Contributors
 

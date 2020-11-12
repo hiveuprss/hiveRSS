@@ -23,7 +23,7 @@ const makeInterfaceUrl = (iface) => {
     } else if (iface == 'leofinance') {
         site = 'https://leofinance.io'
     } else if (iface == 'hivelist') {
-        site = 'https://hivelist.io'
+        site = 'https://hivelist.org'
     }
   return site;
 }
