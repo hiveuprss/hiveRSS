@@ -22,6 +22,8 @@ const makeInterfaceUrl = (iface) => {
         site = 'https://ecency.com'
     } else if (iface == 'leofinance') {
         site = 'https://leofinance.io'
+    } else if (iface == 'hivelist') {
+        site = 'https://hivelist.io'
     }
   return site;
 }
