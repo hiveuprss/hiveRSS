@@ -73,14 +73,11 @@ Only include votes above a specific percentage weight, and link to non-default i
 
 Use with the query parameter 'interface'. See examples below.
 
-* Hive.blog (default)
-> `http://hiverss.com/@<username>`
-* PeakD.com
-> `http://hiverss.com/@<username>?interface=peakd`
-* Ecency.com
-> `http://hiverss.com/@<username>?interface=ecency`
-* LeoFinance.io 
-> `http://hiverss.com/@<username>?interface=leofinance`
+* Hive.blog (default) `http://hiverss.com/@<username>`
+* PeakD.com `http://hiverss.com/@<username>?interface=peakd`
+* Ecency.com `http://hiverss.com/@<username>?interface=ecency`
+* LeoFinance.io `http://hiverss.com/@<username>?interface=leofinance`
+* Hivelist.io `http://hiverss.com/@<username>?interface=hivelist`
 
 ## Contributors
 
