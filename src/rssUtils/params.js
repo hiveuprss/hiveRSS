@@ -1,11 +1,27 @@
 
+var frontEnds = [
+  'hive',
+  'peakd',
+  'ulogs',
+  'steempeak',
+  'esteem',
+  'ecency',
+  'leofinance',
+  'hivelist',
+  'ctptalk',
+  'sportstalk',
+  'reggaejahm',
+  'splintertalk',
+  'weedcash'
+]
+
 
 var getInterface = function (query) {
     if (query !== undefined && 
         Object.keys(query).length !== 0 &&
         query['interface'] !== undefined &&
         query['interface'] !== '') {
-      if (['hive','peakd','ulogs','steempeak','esteem','ecency','leofinance','hivelist'].includes(query['interface'])) {
+      if (frontEnds.includes(query['interface'])) {
         return query['interface']
       }
     } 

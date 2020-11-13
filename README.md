@@ -78,6 +78,12 @@ Use with the query parameter 'interface'. See examples below.
 * Ecency.com `http://hiverss.com/@<username>?interface=ecency`
 * LeoFinance.io `http://hiverss.com/@<username>?interface=leofinance`
 * Hivelist.org `http://hiverss.com/@<username>?interface=hivelist`
+* Ctptalk.com `http://hiverss.com/@<username>?interface=ctptalk`
+* Splintertalk.io `http://hiverss.com/@<username>?interface=splintertalk`
+* Reggaejahm.com `http://hiverss.com/@<username>?interface=reggaejahm`
+* Sportstalksocial.com `http://hiverss.com/@<username>?interface=sportstalk`
+* Weedcash.network `http://hiverss.com/@<username>?interface=weedcash`
+
 
 ## Contributors
 

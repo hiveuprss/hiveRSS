@@ -24,7 +24,18 @@ const makeInterfaceUrl = (iface) => {
         site = 'https://leofinance.io'
     } else if (iface == 'hivelist') {
         site = 'https://hivelist.org'
+    } else if (iface == 'ctptalk') {
+        site = 'https://ctptalk.com'
+    } else if (iface == 'splintertalk') {
+        site = 'https://www.splintertalk.io'
+    } else if (iface == 'reggaejahm') {
+        site = 'https://reggaejahm.com'
+    } else if (iface == 'sportstalk') {
+        site = 'https://sportstalksocial.com'
+    } else if (iface == 'weedcash') {
+        site = 'https://weedcash.network'
     }
+
   return site;
 }
 
