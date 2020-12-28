@@ -50,7 +50,7 @@ router.get('/', async (ctx, next) => {
 })
 
 
-hive.api.setOptions({ url: 'https://anyx.io/' });
+hive.api.setOptions({ url: 'https://api.hive.blog/' });
 const routes = [ router, userRouter, tagRouter ]
 
 export default () => compose([].concat(
