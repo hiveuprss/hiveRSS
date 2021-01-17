@@ -171,15 +171,21 @@ const rssGeneratorVoter = async (voter, iface, limit, minVotePct, tagFilter, ref
         docs: 'https://github.com/hiveuprss/hiverss'
     } 
     
-    const apiResponse = await hive.api.callAsync('database_api.list_votes',
-        {start:[voter,"",""], limit:1000, order:"by_voter_comment"})
+    const apiResponse = await hive.api.callAsync('condenser_api.get_account_history', [voter, -1, 1000])
 
-    // this code will have an issue if account has voted more than 1000 times in the past 7 days
-    // votes after #1000 will be skipped
-    // the API does not provide a way to get latest votes first
+    // remove other ops
+    let votes = apiResponse.filter((x) => {return x[1].op[0] == "vote"})
     
+    votes = votes.map((x) => {
+        let v = x[1].op[1]
+        v.date = x[1].timestamp
+        v.vote_percent = v.weight
+        
+        return v
+    })
+
     // remove other voters
-    var filteredVoteList = apiResponse.votes.filter((x) => {return x.voter == voter})
+    var filteredVoteList = votes.filter((x) => {return x.voter == voter})
 
     // remove votes below minVotePct
     var filteredVoteList = filteredVoteList.filter((x) => {return x.vote_percent >= (minVotePct * 100)})
@@ -244,7 +250,7 @@ const feedItem = async (feed, response, iface, refer) => {
 
 
 const feedItemVoted = async (feed, response, iface, refer) => {
-    response.forEach(({permlink, author, last_update: date, vote_percent}) => {
+    response.forEach(({permlink, author, date, vote_percent}) => {
         feed.item({
             url: makeFeedItemUrlFromVote(author,permlink,iface,refer),
             author,
