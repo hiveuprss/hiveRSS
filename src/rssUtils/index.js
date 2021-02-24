@@ -34,6 +34,8 @@ const makeInterfaceUrl = (iface) => {
         site = 'https://sportstalksocial.com'
     } else if (iface == 'weedcash') {
         site = 'https://weedcash.network'
+    } else if (iface == 'hivehustlers') {
+        site = 'https://hivehustlers.io'
     }
 
   return site;

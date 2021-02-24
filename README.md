@@ -83,6 +83,7 @@ Use with the query parameter 'interface'. See examples below.
 * Reggaejahm.com `http://hiverss.com/@<username>?interface=reggaejahm`
 * Sportstalksocial.com `http://hiverss.com/@<username>?interface=sportstalk`
 * Weedcash.network `http://hiverss.com/@<username>?interface=weedcash`
+* Hivehustlers.io `https://hiverss.com/@<username>?interface=hivehustlers`
 
 
 ## Contributors
