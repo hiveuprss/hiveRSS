@@ -36,6 +36,8 @@ const makeInterfaceUrl = (iface) => {
         site = 'https://weedcash.network'
     } else if (iface == 'hivehustlers') {
         site = 'https://hivehustlers.io'
+    } else if (iface == 'naturalmedicine') {
+        site = 'https://naturalmedicine.io'
     }
 
   return site;

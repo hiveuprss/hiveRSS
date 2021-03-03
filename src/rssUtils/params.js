@@ -13,7 +13,8 @@ var frontEnds = [
   'reggaejahm',
   'splintertalk',
   'weedcash',
-  'hivehustlers'
+  'hivehustlers',
+  'naturalmedicine'
 ]
 
 
