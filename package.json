@@ -30,6 +30,7 @@
     "npm-watch": "^0.7.0"
   },
   "dependencies": {
+    "@ecency/render-helper": "^2.1.2",
     "@hiveio/hive-js": "^0.8.4",
     "babel-polyfill": "^6.26.0",
     "koa": "^2.7.0",
@@ -39,6 +40,6 @@
     "koa-static": "^3.0.0",
     "path": "^0.12.7",
     "rss": "^1.2.2",
-    "showdown": "^1.9.0"
+    "showdown": "^1.9.1"
   }
 }

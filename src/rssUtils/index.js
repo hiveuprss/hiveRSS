@@ -3,9 +3,8 @@ import xml from 'xml'
 import { promisify } from 'util'
 const hive = require('@hiveio/hive-js');
 const config = require('../config');
-const showdown = require('showdown');
-const markdownConverter = new showdown.Converter();
-
+const renderHelper = require('@ecency/render-helper');
+renderHelper.setProxyBase('https://images.hive.blog')
 
 const makeInterfaceUrl = (iface) => {
 
@@ -245,7 +244,7 @@ const feedItem = async (feed, response, iface, refer) => {
             categories: [category],
             author,
             date,
-            description: body.replace(/!\[.*\]\(.*\)/g, (x) => {return markdownConverter.makeHtml(x);})
+            description: renderHelper.renderPostBody(body)
         })
     });
 
