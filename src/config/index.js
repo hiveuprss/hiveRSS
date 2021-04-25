@@ -1,1 +1,1 @@
-exports.FEED_URL = 'http://hiverss.com';
+exports.FEED_URL = 'https://hiverss.com';
