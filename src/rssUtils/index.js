@@ -232,7 +232,7 @@ const methodMap = {
 
 
 const getFeedContent = async (category, tag, limit) => methodMap.hasOwnProperty(category) ?
-                                            await methodMap[category]({tag, limit: limit}) :
+                                            await methodMap[category]({tag: tag, limit: limit}) :
                                             Promise.reject({status: 400, message: "Unknown Category"})
 
 
