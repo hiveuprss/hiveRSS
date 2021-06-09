@@ -85,7 +85,7 @@ Use with the query parameter 'interface'. See examples below.
 * Weedcash.network `https://hiverss.com/@<username>?interface=weedcash`
 * Hivehustlers.io `https://hiverss.com/@<username>?interface=hivehustlers`
 * Naturalmedicine.io `https://hiverss.com/@<username>?interface=naturalmedicine`
-
+* Dunksocial.io `https://hiverss.com/@<username>?interface=dunksocial`
 
 ## Contributors
 
