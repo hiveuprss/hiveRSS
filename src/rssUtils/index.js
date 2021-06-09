@@ -37,6 +37,8 @@ const makeInterfaceUrl = (iface) => {
         site = 'https://hivehustlers.io'
     } else if (iface == 'naturalmedicine') {
         site = 'https://naturalmedicine.io'
+    } else if (iface == 'dunksocial') {
+        site = 'https://dunksocial.io'
     }
 
   return site;
