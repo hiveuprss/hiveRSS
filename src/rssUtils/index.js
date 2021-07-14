@@ -39,6 +39,8 @@ const makeInterfaceUrl = (iface) => {
         site = 'https://naturalmedicine.io'
     } else if (iface == 'dunksocial') {
         site = 'https://dunksocial.io'
+    } else if (iface == 'wearealive') {
+        site = 'https://wearealiveand.social'
     }
 
   return site;
