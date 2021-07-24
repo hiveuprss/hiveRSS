@@ -113,6 +113,23 @@ const buildFeedQueryParams = (iface, limit, minVotePct = NaN) => {
 }
 
 
+const makeImageUrl = async (username) => {
+    // helper function to query Hive profile photo URL
+    try {
+        const account_details = await hive.api.callAsync('condenser_api.get_accounts', [[username]])
+        const profile_image = JSON.parse(account_details[0].posting_json_metadata).profile.profile_image
+
+        if (typeof profile_image !== 'undefined') {
+            return profile_image
+        }
+    } catch (error) {
+        console.error('Failed to fetch profile image: ' + error)
+        const image_url = 'http://www.hiverss.com/hive_logo.png'
+        return image_url
+    }
+}
+
+
 const rssGeneratorUser = async (username, type, iface, limit, tagFilter, refer) => {
     
     var feedQueryParams = buildFeedQueryParams(iface, limit)
@@ -121,22 +138,23 @@ const rssGeneratorUser = async (username, type, iface, limit, tagFilter, refer) 
         title: `Posts from @${username}'s ${type}`,
         feed_url: `${config.FEED_URL}/@${username}/${type}${feedQueryParams}`,
         site_url: makeUserProfileURL(username,type,iface,refer),
-        image_url: 'http://www.hiverss.com/hive_logo.png',
+        image_url: await makeImageUrl(username),
         docs: 'https://github.com/hiveuprss/hiverss'
     } 
 
-        const apiResponse = await getFeedContent(type, username, limit)
-        var filteredPostList = apiResponse
+    const apiResponse = await getFeedContent(type, username, limit)
 
-        if (tagFilter.length > 0) {
-            var filteredPostList = apiResponse.filter((x) => {
-                return JSON.parse(x.json_metadata.toLowerCase()).tags.includes(tagFilter)
-            })            
-        }
+    var filteredPostList = apiResponse
 
-        const feed = new RSS(feedOption)
-        const completedFeed = await feedItem(feed, filteredPostList, iface, refer)
-        return completedFeed.xml()
+    if (tagFilter.length > 0) {
+        var filteredPostList = apiResponse.filter((x) => {
+            return JSON.parse(x.json_metadata.toLowerCase()).tags.includes(tagFilter)
+        })
+    }
+
+    const feed = new RSS(feedOption)
+    const completedFeed = await feedItem(feed, filteredPostList, iface, refer)
+    return completedFeed.xml()
 }
 
 
@@ -153,6 +171,7 @@ const rssGeneratorTopic = async (category, tag, iface, limit, tagFilter, refer) 
     } 
 
         const apiResponse = await getFeedContent(category, tag, limit)
+
         var filteredPostList = apiResponse
 
         if (tagFilter.length > 0) {
@@ -223,9 +242,11 @@ const getDiscussionsByAuthorBeforeDate = promisify(hive.api.getDiscussionsByAuth
 const methodMap = {
     'feed': (query) => getDiscussionsByFeed(query),
     'blog': (query) => getDiscussionsByBlog(query),
-    'blogWithoutResteems': (query) => getDiscussionsByAuthorBeforeDate({author: query.tag,
-                                                                        startPermlink: '3-25',
-                                                                        beforeDate: new Date().toISOString().split('.')[0]}),
+    // TODO: fix "blog without reblogs" aka "posts"
+    //'posts': (query) => getDiscussionsByAuthorBeforeDate({author: query.tag,
+    //                                                      startPermlink: '',
+    //                                                      beforeDate: new Date().toISOString().split('.')[0],
+    //                                                      limit: 1}),
     'new': (query) => getDiscussionsByCreated(query),
     'created': (query) => getDiscussionsByCreated(query),
     'hot': (query) => getDiscussionsByHot(query),
