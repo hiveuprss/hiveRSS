@@ -87,6 +87,7 @@ Use with the query parameter 'interface'. See examples below.
 * Naturalmedicine.io `https://hiverss.com/@<username>?interface=naturalmedicine`
 * Dunksocial.io `https://hiverss.com/@<username>?interface=dunksocial`
 * WeAreAliveAnd.social `https://hiverss.com/@<username>?interface=wearealive`
+* MusicForLife.io `https://hiverss.com/@<username>?interface=musicforlife`
 
 ## Contributors
 

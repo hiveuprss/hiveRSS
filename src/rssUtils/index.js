@@ -41,6 +41,8 @@ const makeInterfaceUrl = (iface) => {
         site = 'https://dunksocial.io'
     } else if (iface == 'wearealive') {
         site = 'https://wearealiveand.social'
+    } else if (iface == 'musicforlife') {
+        site = 'https://musicforlife.io'
     }
 
   return site;
