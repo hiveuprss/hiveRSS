@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@ecency/render-helper": "2.1.2",
-    "@hiveio/hive-js": "^0.8.13",
+    "@hiveio/hive-js": "^2.0.1",
     "babel-polyfill": "^6.26.0",
     "koa": "^2.7.0",
     "koa-compose": "^4.1.0",
