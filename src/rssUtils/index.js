@@ -43,6 +43,8 @@ const makeInterfaceUrl = (iface) => {
         site = 'https://wearealiveand.social'
     } else if (iface == 'musicforlife') {
         site = 'https://musicforlife.io'
+    } else if (iface == 'beatzchain') {
+        site = 'https://beatzchain.com'
     }
 
   return site;

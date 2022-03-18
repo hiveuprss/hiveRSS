@@ -88,6 +88,7 @@ Use with the query parameter 'interface'. See examples below.
 * Dunksocial.io `https://hiverss.com/@<username>?interface=dunksocial`
 * WeAreAliveAnd.social `https://hiverss.com/@<username>?interface=wearealive`
 * MusicForLife.io `https://hiverss.com/@<username>?interface=musicforlife`
+* Beatzchain.com `https://hiverss.com/@<username>?interface=beatzchain`
 
 ## Contributors
 
