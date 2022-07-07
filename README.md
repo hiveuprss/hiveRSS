@@ -89,6 +89,7 @@ Use with the query parameter 'interface'. See examples below.
 * WeAreAliveAnd.social `https://hiverss.com/@<username>?interface=wearealive`
 * MusicForLife.io `https://hiverss.com/@<username>?interface=musicforlife`
 * Beatzchain.com `https://hiverss.com/@<username>?interface=beatzchain`
+* Blocktunes.social `https://hiverss.com/@<username>?interface=blocktunes`
 
 ## Contributors
 

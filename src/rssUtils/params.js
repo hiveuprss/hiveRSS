@@ -18,7 +18,8 @@ var frontEnds = [
   'dunksocial',
   'wearealive',
   'musicforlife',
-  'beatzchain'
+  'beatzchain',
+  'blocktunes'
 ]
 
 
