@@ -46,7 +46,7 @@ const makeInterfaceUrl = (iface) => {
     } else if (iface == 'beatzchain') {
         site = 'https://beatzchain.com'
     } else if (iface == 'blocktunes') {
-        site = 'https://blocktunes.social'
+        site = 'https://hive.blocktunes.net'
     }
 
   return site;
