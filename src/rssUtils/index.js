@@ -145,8 +145,46 @@ const rssGeneratorUser = async (username, type, iface, limit, tagFilter, refer) 
         feed_url: `${config.FEED_URL}/@${username}/${type}${feedQueryParams}`,
         site_url: makeUserProfileURL(username,type,iface,refer),
         image_url: await makeImageUrl(username),
-        docs: 'https://github.com/hiveuprss/hiverss'
-    } 
+        docs: 'https://github.com/hiveuprss/hiverss',
+        custom_namespaces: {
+          'podcast': 'https://podcastindex.org/namespace/1.0'
+        },
+        custom_elements: [
+            {'podcast:value': [
+                {_attr: {
+                    method: 'keysend',
+                    suggested: '0.0000005',
+                    type: 'lightning'
+                }},
+                {'podcast:valueRecipient': {
+                    _attr: {
+                        address: '0266ad2656c7a19a219d37e82b280046660f4d7f3ae0c00b64a1629de4ea567668',
+                        customKey: '818818',
+                        customValue: `${username}`,
+                        name: `${username}`,
+                        split: '100',
+                        type: 'node'
+                    }
+                }}]
+            },
+            {'podcast:value': [
+                {_attr: {
+                    method: 'transfer',
+                    suggested: '0.05',
+                    type: 'HBD'
+                }},
+                {'podcast:valueRecipient': {
+                    _attr: {
+                        address: `${username}`,
+                        name: 'podcaster',
+                        split: '100',
+                        type: 'account'
+                    }
+                }}]
+            }
+        ]
+    }
+
 
     const apiResponse = await getFeedContent(type, username, limit)
 
