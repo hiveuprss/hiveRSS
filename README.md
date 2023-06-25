@@ -44,7 +44,7 @@ Get comments from your favorite hiver.
 
 ### Posts by Category
 
-Get posts by category, you can get posts by new/hot/trending/promoted
+Get posts by category; you can get posts by new/hot/trending/promoted
 
 > `https://hiverss.com/new/<category>` OR `https://hiverss.com/created/<category>`
 > `https://hiverss.com/hot/<category>`
@@ -57,13 +57,13 @@ Get posts by category, you can get posts by new/hot/trending/promoted
 
 ### Posts Voted by a Specific User
 
-Get a feed of links to posts recently voted by a user
+Get a feed of links to posts recently voted by a user.
 
 > `https://hiverss.com/@<username>/votes`
 
 * [https://hiverss.com/@ocdb/votes](https://hiverss.com/@ocdb/votes)
 
-Only include votes above a specific percentage weight, and link to non-default interace
+Only include votes above a specific percentage weight and link to non-default interface
 
 > `https://hiverss.com/@<username>/votes?minVotePct=<percentage>&interface=<interface-name>`
 
@@ -71,7 +71,7 @@ Only include votes above a specific percentage weight, and link to non-default i
 
 ## Supported Hive Frontends 
 
-Use with the query parameter 'interface'. See examples below.
+Use the query parameter 'interface'. See the examples below.
 
 * Hive.blog (default) `https://hiverss.com/@<username>`
 * PeakD.com `https://hiverss.com/@<username>?interface=peakd`
@@ -91,9 +91,14 @@ Use with the query parameter 'interface'. See examples below.
 * Beatzchain.com `https://hiverss.com/@<username>?interface=beatzchain`
 * Blocktunes.social `https://hiverss.com/@<username>?interface=blocktunes`
 
+## Using Communities
+
+You can make a feed for a Hive community, by using the community account (i.e. hive-123456) as a filter. See the example below.
+
+* Hive Pizza community recently created posts `https://hiverss.com/@hive-185582/created`
+
 ## Contributors
 
 * Creator of SteemRSS: [@philipkoon](https://hive.blog/@philipkoon)
 * SteemRSS Contributor: [@doriitamar](https://hive.blog/@doriitamar)
-* HiveRSS Maintainer: [@torrey.blog](https://hive.blog/@torrey.blog)
-* HiveRSS Maintainer: [@hivetrending](https://hive.blog/@hivetrending) Twitter: [@HiveTrending](https://twitter.com/hivetrending)
+* HiveRSS Maintainer: [@hivetrending](https://hive.blog/@hivetrending)
