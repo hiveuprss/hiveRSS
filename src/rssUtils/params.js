@@ -46,7 +46,7 @@ var getLimit = function (query) {
       if (!isNaN(limit)) {
         // clamp to range [0..50]
         limit = Math.max(limit, 0)
-        limit = Math.min(limit, 50)
+        limit = Math.min(limit, 20)
         return limit  
       }
     } 
