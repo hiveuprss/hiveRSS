@@ -34,7 +34,11 @@ export async function getTopicPosts(category: string, tag: string, limit: number
 }
 
 export async function getCommunityPosts(community: string, limit: number): Promise<HivePost[]> {
-  return client.call('bridge', 'get_ranked_posts', [{ tag: community, limit, sort: 'created' }]);
+  // The bridge API prepends pinned posts regardless of sort order.
+  // Re-sorting by created moves them to their natural chronological position.
+  const posts = await client.call('bridge', 'get_ranked_posts', [{ tag: community, limit, sort: 'created' }]);
+  return posts
+    .sort((a: HivePost, b: HivePost) => new Date(b.created).getTime() - new Date(a.created).getTime());
 }
 
 export async function getUserPosts(username: string, type: string, limit: number): Promise<HivePost[]> {
