@@ -1,0 +1,525 @@
+---
+import Base from '../../layouts/Base.astro';
+import { client, getCommunityPosts } from '../../lib/hive';
+
+const { name } = Astro.params;
+
+interface CommunityInfo {
+  title: string;
+  about: string;
+  description: string;
+  subscribers: number;
+  num_authors: number;
+  sum_pending: number;
+}
+
+let community: CommunityInfo | null = null;
+let posts: any[] = [];
+
+try {
+  const [info, feed] = await Promise.all([
+    client.call('bridge', 'get_community', [{ name, observer: '' }]),
+    getCommunityPosts(name!, 20),
+  ]);
+  community = info;
+  posts = feed || [];
+} catch (e) {
+  console.error('Failed to load community:', e);
+}
+
+if (!community) {
+  return new Response('Community not found', { status: 404 });
+}
+
+const feedUrl = `https://hiverss.com/community/${name}.xml`;
+
+function fmt(n: number): string {
+  return n?.toLocaleString('en-US') ?? '—';
+}
+
+function fmtDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    year: 'numeric', month: 'short', day: 'numeric',
+  });
+}
+---
+
+<Base
+  title={`${community.title} — Hive community feed on HiveRSS`}
+  description={community.about || `RSS feed and latest posts from the ${community.title} community on Hive.`}
+>
+  <main>
+
+    <!-- ── Community header ── -->
+    <section class="comm-header">
+      <div class="comm-header-inner">
+        <div class="comm-meta">
+          <a href="/" class="breadcrumb">← All communities</a>
+          <div class="comm-title-row">
+            <h1>{community.title}</h1>
+            <a
+              href={`https://peakd.com/c/${name}`}
+              target="_blank"
+              rel="noopener"
+              class="peakd-link"
+            >
+              View on PeakD ↗
+            </a>
+          </div>
+          {community.about && <p class="comm-about">{community.about}</p>}
+          <div class="comm-stats">
+            <div class="stat">
+              <span class="stat-value">{fmt(community.subscribers)}</span>
+              <span class="stat-label">subscribers</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+              <span class="stat-value">{fmt(community.num_authors)}</span>
+              <span class="stat-label">authors</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+              <span class="stat-value">${community.sum_pending?.toFixed(0) ?? '—'}</span>
+              <span class="stat-label">pending rewards</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="comm-actions">
+          <a href={feedUrl} class="rss-btn" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19.01 7.38 20 6.18 20C4.98 20 4 19.01 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1z"/>
+            </svg>
+            Subscribe via RSS
+          </a>
+          <div class="feed-url-display">
+            <code id="feed-url-code">{feedUrl}</code>
+            <button id="copy-btn" class="copy-btn-sm" aria-label="Copy feed URL" title="Copy URL">
+              <svg id="icon-copy" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <svg id="icon-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </button>
+          </div>
+          <a href="https://signup.hive.io" target="_blank" rel="noopener" class="join-btn">
+            New to Hive? Join free →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Post list ── -->
+    <section class="posts-section">
+      <div class="posts-inner">
+        <div class="posts-header">
+          <h2>Recent posts</h2>
+          <span class="posts-count">{posts.length} posts</span>
+        </div>
+
+        {posts.length === 0 ? (
+          <p class="no-posts">No posts found for this community.</p>
+        ) : (
+          <div class="post-list">
+            {posts.map((post, i) => (
+              <a
+                class="post-item"
+                href={`https://peakd.com${post.url}`}
+                target="_blank"
+                rel="noopener"
+              >
+                <span class="post-index">{String(i + 1).padStart(2, '0')}</span>
+                <div class="post-body">
+                  <h3 class="post-title">{post.title || `@${post.author}/${post.permlink}`}</h3>
+                  <div class="post-meta">
+                    <span class="post-author">@{post.author}</span>
+                    <span class="post-sep">·</span>
+                    <span class="post-date">{fmtDate(post.created)}</span>
+                  </div>
+                </div>
+                <span class="post-arrow">↗</span>
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+
+    <!-- ── Join CTA ── -->
+    <section class="join-cta">
+      <div class="join-inner">
+        <div class="join-text">
+          <h2>Write for <em>{community.title}</em></h2>
+          <p>
+            Publish your work on Hive and earn cryptocurrency from readers who appreciate it.
+            No paywalls, no middlemen — your content, your earnings.
+          </p>
+        </div>
+        <div class="join-btns">
+          <a href="https://signup.hive.io" target="_blank" rel="noopener" class="btn-primary">
+            Create a free account
+          </a>
+          <a href={feedUrl} target="_blank" rel="noopener" class="btn-rss">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19.01 7.38 20 6.18 20C4.98 20 4 19.01 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1z"/>
+            </svg>
+            RSS feed
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</Base>
+
+<script>
+  const code    = document.getElementById('feed-url-code')!;
+  const copyBtn = document.getElementById('copy-btn')!;
+  const iconCopy = document.getElementById('icon-copy')!;
+  const iconChk  = document.getElementById('icon-check')!;
+
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(code.textContent || '');
+      iconCopy.style.display = 'none';
+      iconChk.style.display  = 'block';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        iconCopy.style.display = 'block';
+        iconChk.style.display  = 'none';
+        copyBtn.classList.remove('copied');
+      }, 2000);
+    } catch { /* fallback */ }
+  });
+</script>
+
+<style>
+  main { flex: 1; }
+
+  /* ── Header ── */
+  .comm-header {
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .comm-header-inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 3rem 2rem 2.5rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .breadcrumb {
+    display: inline-block;
+    font-size: 0.8125rem;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+    transition: color 0.15s;
+  }
+  .breadcrumb:hover { color: var(--text-muted); }
+
+  .comm-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 1.25rem;
+    margin-bottom: 0.875rem;
+    flex-wrap: wrap;
+  }
+
+  h1 {
+    font-size: clamp(1.75rem, 4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text);
+  }
+
+  .peakd-link {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    transition: color 0.15s;
+    white-space: nowrap;
+  }
+  .peakd-link:hover { color: var(--text-muted); }
+
+  .comm-about {
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 560px;
+    margin-bottom: 1.5rem;
+  }
+
+  .comm-stats {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .stat-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .stat-divider {
+    width: 1px;
+    height: 2rem;
+    background: var(--border-bright);
+  }
+
+  /* Actions sidebar */
+  .comm-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 220px;
+  }
+
+  .rss-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.25rem;
+    background: var(--red);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    border-radius: 8px;
+    transition: background 0.15s, transform 0.1s;
+    white-space: nowrap;
+  }
+  .rss-btn:hover { background: var(--red-light); transform: translateY(-1px); }
+
+  .feed-url-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg);
+    border: 1px solid var(--border-bright);
+    border-radius: 6px;
+    padding: 0.5rem 0.625rem;
+    overflow: hidden;
+  }
+  .feed-url-display code {
+    font-family: 'Instrument Sans', monospace;
+    font-size: 0.75rem;
+    color: var(--amber);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .copy-btn-sm {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    padding: 0.125rem;
+    transition: color 0.15s;
+    flex-shrink: 0;
+  }
+  .copy-btn-sm:hover { color: var(--text-muted); }
+  .copy-btn-sm.copied { color: #4EC994; }
+
+  .join-btn {
+    font-size: 0.8125rem;
+    color: var(--text-dim);
+    text-align: center;
+    transition: color 0.15s;
+  }
+  .join-btn:hover { color: var(--text-muted); }
+
+  /* ── Posts ── */
+  .posts-section { padding: 3rem 2rem; }
+  .posts-inner { max-width: var(--max-w); margin: 0 auto; }
+
+  .posts-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .posts-header h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .posts-count {
+    font-size: 0.8125rem;
+    color: var(--text-dim);
+  }
+
+  .no-posts {
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 2rem 0;
+  }
+
+  .post-list {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .post-item {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+    cursor: pointer;
+  }
+  .post-item:last-child { border-bottom: none; }
+  .post-item:hover { background: var(--surface); }
+  .post-item:hover .post-arrow { opacity: 1; color: var(--red); }
+  .post-item:hover .post-title { color: var(--red-light); }
+
+  .post-index {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    min-width: 1.75rem;
+    flex-shrink: 0;
+  }
+
+  .post-body { flex: 1; min-width: 0; }
+
+  .post-title {
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.12s;
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+  .post-author { color: var(--text-muted); }
+  .post-sep { color: var(--border-bright); }
+
+  .post-arrow {
+    font-size: 0.875rem;
+    color: var(--text-dim);
+    opacity: 0;
+    transition: all 0.12s;
+    flex-shrink: 0;
+  }
+
+  /* ── Join CTA ── */
+  .join-cta {
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    padding: 4rem 2rem;
+  }
+  .join-inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 3rem;
+    flex-wrap: wrap;
+  }
+  .join-text { max-width: 560px; }
+  .join-text h2 {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    margin-bottom: 0.75rem;
+  }
+  .join-text h2 em {
+    font-style: normal;
+    color: var(--red);
+  }
+  .join-text p {
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+  .join-btns {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.65rem 1.25rem;
+    background: var(--red);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    border-radius: 8px;
+    white-space: nowrap;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-primary:hover { background: var(--red-light); transform: translateY(-1px); }
+
+  .btn-rss {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.65rem 1.125rem;
+    background: none;
+    border: 1px solid var(--border-bright);
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    border-radius: 8px;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .btn-rss:hover { color: var(--amber); border-color: var(--amber); background: var(--amber-dim); }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .comm-header-inner {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      padding: 2rem 1.25rem 2rem;
+    }
+    .comm-actions { min-width: unset; flex-direction: row; flex-wrap: wrap; }
+    .rss-btn { flex: 1; }
+    .join-inner { flex-direction: column; gap: 2rem; }
+    .join-btns { width: 100%; }
+  }
+
+  @media (max-width: 560px) {
+    .posts-section, .join-cta { padding: 2.5rem 1.25rem; }
+  }
+</style>

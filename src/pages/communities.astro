@@ -1,0 +1,297 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCommunities } from '../lib/hive';
+
+const communities = await getCommunities(100);
+
+function fmt(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000)     return `${(n / 1_000).toFixed(1)}K`;
+  return String(n ?? 0);
+}
+---
+
+<Base
+  title="Browse Hive Communities — HiveRSS"
+  description={`Browse ${communities.length} active Hive communities. Subscribe to any community via RSS and follow new posts in your reader.`}
+>
+  <main>
+
+    <section class="page-header">
+      <div class="page-header-inner">
+        <a href="/" class="breadcrumb">← Home</a>
+        <h1>Browse communities</h1>
+        <p class="page-desc">
+          {communities.length} active communities on the Hive blockchain.
+          Subscribe to any via RSS — works in Feedly, NetNewsWire, and every RSS reader.
+        </p>
+        <div class="search-wrap">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            id="search"
+            type="text"
+            placeholder="Filter communities…"
+            autocomplete="off"
+            spellcheck="false"
+            aria-label="Filter communities"
+          />
+          <span id="count" class="search-count">{communities.length}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid-section">
+      <div class="grid-inner">
+        <div class="community-grid" id="community-grid">
+          {communities.map(c => (
+            <a
+              class="card"
+              href={`/community/${c.name}`}
+              data-title={c.title.toLowerCase()}
+              data-about={(c.about ?? '').toLowerCase()}
+            >
+              <div class="card-top">
+                <div class="card-titles">
+                  <h2>{c.title}</h2>
+                  {c.about && <p class="card-about">{c.about}</p>}
+                </div>
+                <span class="rss-icon" title="RSS feed available">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19.01 7.38 20 6.18 20C4.98 20 4 19.01 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1z"/>
+                  </svg>
+                </span>
+              </div>
+              <div class="card-stats">
+                <span class="stat">
+                  <span class="stat-val">{fmt(c.subscribers)}</span>
+                  <span class="stat-lbl">subscribers</span>
+                </span>
+                <span class="stat-sep">·</span>
+                <span class="stat">
+                  <span class="stat-val">{fmt(c.num_authors)}</span>
+                  <span class="stat-lbl">authors</span>
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+
+        <p id="empty-msg" class="empty-msg" style="display:none">
+          No communities match your search.
+        </p>
+      </div>
+    </section>
+
+  </main>
+</Base>
+
+<script>
+  const input    = document.getElementById('search')     as HTMLInputElement;
+  const grid     = document.getElementById('community-grid')!;
+  const countEl  = document.getElementById('count')!;
+  const emptyMsg = document.getElementById('empty-msg')!;
+  const cards    = Array.from(grid.querySelectorAll<HTMLAnchorElement>('.card'));
+
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    let visible = 0;
+
+    cards.forEach(card => {
+      const title = card.dataset.title ?? '';
+      const about = card.dataset.about ?? '';
+      const match = !q || title.includes(q) || about.includes(q);
+      (card as HTMLElement).style.display = match ? '' : 'none';
+      if (match) visible++;
+    });
+
+    countEl.textContent  = String(visible);
+    emptyMsg.style.display = visible === 0 ? 'block' : 'none';
+  });
+</script>
+
+<style>
+  main { flex: 1; }
+
+  /* ── Header ── */
+  .page-header {
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    padding: 3rem 2rem 2.5rem;
+  }
+  .page-header-inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+  }
+
+  .breadcrumb {
+    display: inline-block;
+    font-size: 0.8125rem;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+    transition: color 0.15s;
+  }
+  .breadcrumb:hover { color: var(--text-muted); }
+
+  h1 {
+    font-size: clamp(1.75rem, 4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.625rem;
+  }
+
+  .page-desc {
+    font-size: 1rem;
+    color: var(--text-muted);
+    max-width: 540px;
+    margin-bottom: 1.75rem;
+    line-height: 1.6;
+  }
+
+  .search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    max-width: 420px;
+  }
+  .search-icon {
+    position: absolute;
+    left: 0.875rem;
+    color: var(--text-dim);
+    pointer-events: none;
+    flex-shrink: 0;
+  }
+  #search {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    padding: 0.65rem 3rem 0.65rem 2.5rem;
+    color: var(--text);
+    font-size: 0.9375rem;
+    font-family: 'Instrument Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    caret-color: var(--red);
+  }
+  #search:focus {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(227, 19, 55, 0.1);
+  }
+  #search::placeholder { color: var(--text-dim); }
+
+  .search-count {
+    position: absolute;
+    right: 0.875rem;
+    font-size: 0.8rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    color: var(--text-dim);
+    pointer-events: none;
+  }
+
+  /* ── Grid ── */
+  .grid-section { padding: 2.5rem 2rem 4rem; }
+  .grid-inner { max-width: var(--max-w); margin: 0 auto; }
+
+  .community-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.875rem;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.875rem;
+    padding: 1.125rem 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  }
+  .card:hover {
+    border-color: var(--red);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  }
+  .card:hover .rss-icon { color: var(--red); }
+  .card:hover h2 { color: var(--red-light); }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .card-titles { flex: 1; min-width: 0; }
+
+  h2 {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.3rem;
+    transition: color 0.15s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-about {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .rss-icon {
+    color: var(--text-dim);
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    transition: color 0.15s;
+  }
+
+  .card-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .stat { display: flex; align-items: baseline; gap: 0.3rem; }
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .stat-lbl {
+    font-size: 0.725rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .stat-sep { color: var(--border-bright); font-size: 0.75rem; }
+
+  .empty-msg {
+    text-align: center;
+    padding: 4rem 0;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .community-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .page-header { padding: 2rem 1.25rem 2rem; }
+    .grid-section { padding: 2rem 1.25rem 3rem; }
+    .community-grid { grid-template-columns: 1fr; }
+    .search-wrap { max-width: 100%; }
+  }
+</style>

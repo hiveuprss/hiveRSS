@@ -1,104 +1,88 @@
-<title>hiveRSS</title>
+# HiveRSS — [hiverss.com](https://hiverss.com)
 
-![HiveRSS Logo](./hiverss2.png)
+RSS and Atom feeds for the [Hive blockchain](https://hive.io). Follow any Hive author, tag, or community in your RSS reader.
 
-# HiveRSS [https://hiverss.com](https://www.hiverss.com)
+## Usage
 
-A simple tool for creating Atom/RSS feeds from Hive accounts and categories.
+Go to (almost) any Hive page with a content stream and replace `hive.blog` with `hiverss.com`:
 
-Go to (almost) any Hive page with a content stream, and replace 'hive.blog' with 'hiverss.com' in the URL. 
+```
+https://hive.blog/trending/photography  →  https://hiverss.com/trending/photography.xml
+```
 
-https://hive.blog/trending/hive -> https://hive***rss***.com/trending/hive
+### Author feeds
 
-## Usage Examples
+| URL | Description |
+| :-- | :---------- |
+| `hiverss.com/@username.xml` | Latest posts by author |
+| `hiverss.com/@username/feed.xml` | Author's followed feed |
+| `hiverss.com/@username/comments.xml` | Comments by author |
+| `hiverss.com/@username/votes.xml` | Posts recently voted by author |
 
-### User Feed
+Filter by tag: `hiverss.com/@username.xml?tagFilter=travel`
 
-Get posts from your feeds or others' as well.
+Only include votes above a threshold: `hiverss.com/@username/votes.xml?minVotePct=50`
 
-> `hiverss.com/@<username>/feed`
+### Tag feeds
 
-* [hiverss.com/@philipkoon/feed](https://hiverss.com/@philipkoon/feed)
+```
+hiverss.com/trending/<tag>.xml
+hiverss.com/hot/<tag>.xml
+hiverss.com/new/<tag>.xml
+hiverss.com/promoted/<tag>.xml
+```
 
-### Posts By Author
+Examples: `hiverss.com/trending/photography.xml`, `hiverss.com/hot/bitcoin.xml`
 
-Get posts from your favorite hiver.
+### Community feeds
 
-> `hiverss.com/@<username>/blog`
+```
+hiverss.com/community/<hive-community-id>.xml
+```
 
-* [hiverss.com/@philipkoon/blog](https://hiverss.com/@philipkoon/blog)
+Example: `hiverss.com/community/hive-194913.xml`
 
-Filter posts to show only posts matching a tag
+### Interface selector
 
-> `hiverss.com/@username?tagFilter=tag`
+Link posts to your preferred Hive frontend using the `interface` query parameter:
 
-* [hiverss.com/@sajannair?tagFilter=travel](https://hiverss.com/@sajannair?tagFilter=travel)
+```
+hiverss.com/@username.xml?interface=peakd
+```
 
-### Comments By Author
+Supported values: `peakd`, `ecency`, `leofinance`, `hivelist`, `ctptalk`, `splintertalk`, `sportstalk`, `weedcash`, `hivehustlers`, `naturalmedicine`, `dunksocial`, `wearealive`, `musicforlife`, `beatzchain`, `blocktunes`
 
-Get comments from your favorite hiver.
+### Legacy URL redirect
 
-> `hiverss.com/@<username>/comments`
+Old feed URLs (without `.xml`) are automatically redirected to the correct `.xml` endpoint for RSS readers. Browser requests to bare paths serve HTML landing pages instead.
 
-* [hiverss.com/@ned/comments](https://hiverss.com/@ned/comments)
+## Development
 
-### Posts by Category
+```sh
+npm install
+npm run dev       # http://localhost:4321
+npm run build     # build to ./dist/
+npm run preview   # preview production build locally
+```
 
-Get posts by category; you can get posts by new/hot/trending/promoted
+## Deployment (Heroku)
 
-> `https://hiverss.com/new/<category>` OR `https://hiverss.com/created/<category>`
-> `https://hiverss.com/hot/<category>`
-> `https://hiverss.com/trending/<category>`
-> `https://hiverss.com/promoted/<category>`
+```sh
+heroku create
+git push heroku main
+```
 
-* [https://hiverss.com/new/ethereum](https://hiverss.com/new/ethereum)
-* [https://hiverss.com/hot/bitcoin](https://hiverss.com/hot/bitcoin)
-* [https://hiverss.com/trending/steem](https://hiverss.com/trending/steem)
+Heroku auto-detects Node.js, runs `astro build` via `heroku-postbuild`, and starts the server with `node ./dist/server/entry.mjs`.
 
-### Posts Voted by a Specific User
+## Tech stack
 
-Get a feed of links to posts recently voted by a user.
-
-> `https://hiverss.com/@<username>/votes`
-
-* [https://hiverss.com/@ocdb/votes](https://hiverss.com/@ocdb/votes)
-
-Only include votes above a specific percentage weight and link to non-default interface
-
-> `https://hiverss.com/@<username>/votes?minVotePct=<percentage>&interface=<interface-name>`
-
-* [https://hiverss.com/@ocdb/votes?minVotePct=100&interface=peakd](https://hiverss.com/@ocdb/votes?minVotePct=100&interface=peakd)
-
-## Supported Hive Frontends 
-
-Use the query parameter 'interface'. See the examples below.
-
-* Hive.blog (default) `https://hiverss.com/@<username>`
-* PeakD.com `https://hiverss.com/@<username>?interface=peakd`
-* Ecency.com `https://hiverss.com/@<username>?interface=ecency`
-* LeoFinance.io `https://hiverss.com/@<username>?interface=leofinance`
-* Hivelist.org `https://hiverss.com/@<username>?interface=hivelist`
-* Ctptalk.com `https://hiverss.com/@<username>?interface=ctptalk`
-* Splintertalk.io `https://hiverss.com/@<username>?interface=splintertalk`
-* Reggaejahm.com `https://hiverss.com/@<username>?interface=reggaejahm`
-* Sportstalksocial.com `https://hiverss.com/@<username>?interface=sportstalk`
-* Weedcash.network `https://hiverss.com/@<username>?interface=weedcash`
-* Hivehustlers.io `https://hiverss.com/@<username>?interface=hivehustlers`
-* Naturalmedicine.io `https://hiverss.com/@<username>?interface=naturalmedicine`
-* Dunksocial.io `https://hiverss.com/@<username>?interface=dunksocial`
-* WeAreAliveAnd.social `https://hiverss.com/@<username>?interface=wearealive`
-* MusicForLife.io `https://hiverss.com/@<username>?interface=musicforlife`
-* Beatzchain.com `https://hiverss.com/@<username>?interface=beatzchain`
-* Blocktunes.social `https://hiverss.com/@<username>?interface=blocktunes`
-
-## Using Communities
-
-You can make a feed for a Hive community, by using the community account (i.e. hive-123456) as a filter. See the example below.
-
-* Hive Pizza community recently created posts `https://hiverss.com/@hive-185582/created`
+- [Astro](https://astro.build) (SSR, Node adapter)
+- [@astrojs/rss](https://docs.astro.build/en/guides/rss/) for feed generation
+- [@hiveio/dhive](https://github.com/openhive-network/dhive) for Hive API access
 
 ## Contributors
 
-* Creator of SteemRSS: [@philipkoon](https://hive.blog/@philipkoon)
-* SteemRSS Contributor: [@doriitamar](https://hive.blog/@doriitamar)
-* HiveRSS Maintainer: [@hivetrending](https://hive.blog/@hivetrending)
+- Creator of SteemRSS: [@philipkoon](https://peakd.com/@philipkoon)
+- SteemRSS Contributor: [@doriitamar](https://peakd.com/@doriitamar)
+- HiveRSS Maintainer: [@torrey.blog](https://peakd.com/@torrey.blog)
+- HiveRSS Maintainer: [@hivetrending](https://peakd.com/@hivetrending)

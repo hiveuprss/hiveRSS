@@ -1,0 +1,453 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getTopicPosts } from '../../lib/hive';
+
+const { category, tag } = Astro.params;
+
+const VALID_CATEGORIES: Record<string, string> = {
+  trending:  'Trending',
+  hot:       'Hot',
+  created:   'New',
+  new:       'New',
+  promoted:  'Promoted',
+};
+
+const categoryLabel = VALID_CATEGORIES[category!];
+if (!categoryLabel) {
+  return new Response('Unknown category', { status: 404 });
+}
+
+const posts = await getTopicPosts(category!, tag!, 20).catch(() => []);
+
+const feedUrl  = `https://hiverss.com/${category}/${tag}.xml`;
+const hiveUrl  = `https://hive.blog/${category}/${tag}`;
+
+const RELATED_CATEGORIES = Object.keys(VALID_CATEGORIES).filter(
+  c => c !== category && c !== 'new'
+);
+
+function fmtDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    year: 'numeric', month: 'short', day: 'numeric',
+  });
+}
+---
+
+<Base
+  title={`${categoryLabel} #${tag} posts on Hive — HiveRSS`}
+  description={`Browse ${categoryLabel.toLowerCase()} posts tagged #${tag} on the Hive blockchain. Subscribe via RSS to follow new content in your reader.`}
+>
+  <main>
+
+    <!-- ── Tag header ── -->
+    <section class="tag-header">
+      <div class="tag-header-inner">
+        <div class="tag-meta">
+          <a href="/" class="breadcrumb">← Home</a>
+          <div class="tag-title-row">
+            <div class="tag-badge-wrap">
+              <span class="category-badge">{categoryLabel}</span>
+              <h1>#{tag}</h1>
+            </div>
+            <a href={hiveUrl} target="_blank" rel="noopener" class="hive-link">
+              View on Hive ↗
+            </a>
+          </div>
+          <p class="tag-desc">
+            {categoryLabel} posts tagged <strong>#{tag}</strong> on the Hive blockchain.
+            Subscribe to stay current in any RSS reader.
+          </p>
+
+          <div class="category-switcher">
+            <span class="switcher-label">Sort by:</span>
+            {RELATED_CATEGORIES.map(c => (
+              <a
+                href={`/${c}/${tag}`}
+                class={`switcher-pill ${c === category ? 'active' : ''}`}
+              >
+                {VALID_CATEGORIES[c]}
+              </a>
+            ))}
+            <a
+              href={`/${category}/${tag}`}
+              class={`switcher-pill ${category === 'trending' ? 'active' : ''}`}
+            >
+              {categoryLabel}
+            </a>
+          </div>
+        </div>
+
+        <div class="tag-actions">
+          <a href={feedUrl} class="rss-btn" target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19.01 7.38 20 6.18 20C4.98 20 4 19.01 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1z"/>
+            </svg>
+            Subscribe via RSS
+          </a>
+
+          <div class="feed-url-row">
+            <code id="feed-url-code">{feedUrl}</code>
+            <button id="copy-btn" class="copy-btn-sm" aria-label="Copy feed URL" title="Copy">
+              <svg id="icon-copy" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <svg id="icon-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </button>
+          </div>
+
+          <div class="alt-feeds">
+            <span class="alt-feeds-label">Other feeds:</span>
+            {RELATED_CATEGORIES.slice(0, 3).map(c => (
+              <a href={`/${c}/${tag}.xml`} class="alt-pill">{VALID_CATEGORIES[c]}</a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Posts ── -->
+    <section class="posts-section">
+      <div class="posts-inner">
+        <div class="posts-header">
+          <h2>{categoryLabel} posts</h2>
+          <span class="posts-count">{posts.length} posts</span>
+        </div>
+
+        {posts.length === 0 ? (
+          <p class="no-posts">No posts found for #{tag}.</p>
+        ) : (
+          <div class="post-list">
+            {posts.map((post, i) => (
+              <a
+                class="post-item"
+                href={`https://peakd.com${post.url}`}
+                target="_blank"
+                rel="noopener"
+              >
+                <span class="post-index">{String(i + 1).padStart(2, '0')}</span>
+                <div class="post-body">
+                  <h3 class="post-title">{post.title || `@${post.author}/${post.permlink}`}</h3>
+                  <div class="post-meta">
+                    <a
+                      class="post-author"
+                      href={`/@${post.author}`}
+                      onclick="(function(e){e.stopPropagation()})(event)"
+                    >@{post.author}</a>
+                    <span class="post-sep">·</span>
+                    <span class="post-date">{fmtDate(post.created)}</span>
+                  </div>
+                </div>
+                <span class="post-arrow">↗</span>
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+
+  </main>
+</Base>
+
+<script>
+  const code     = document.getElementById('feed-url-code')!;
+  const copyBtn  = document.getElementById('copy-btn')!;
+  const iconCopy = document.getElementById('icon-copy')!;
+  const iconChk  = document.getElementById('icon-check')!;
+
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(code.textContent || '');
+      iconCopy.style.display = 'none';
+      iconChk.style.display  = 'block';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        iconCopy.style.display = 'block';
+        iconChk.style.display  = 'none';
+        copyBtn.classList.remove('copied');
+      }, 2000);
+    } catch { /* fallback */ }
+  });
+</script>
+
+<style>
+  main { flex: 1; }
+
+  /* ── Header ── */
+  .tag-header {
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .tag-header-inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 3rem 2rem 2.5rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .breadcrumb {
+    display: inline-block;
+    font-size: 0.8125rem;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+    transition: color 0.15s;
+  }
+  .breadcrumb:hover { color: var(--text-muted); }
+
+  .tag-title-row {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 0.875rem;
+    flex-wrap: wrap;
+  }
+
+  .tag-badge-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .category-badge {
+    display: inline-block;
+    padding: 0.2rem 0.625rem;
+    background: var(--red-dim);
+    border: 1px solid rgba(227, 19, 55, 0.2);
+    border-radius: 999px;
+    color: var(--red-light);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  h1 {
+    font-size: clamp(1.75rem, 4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text);
+  }
+
+  .hive-link {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-dim);
+    transition: color 0.15s;
+    white-space: nowrap;
+  }
+  .hive-link:hover { color: var(--text-muted); }
+
+  .tag-desc {
+    font-size: 0.9375rem;
+    color: var(--text-muted);
+    max-width: 520px;
+    margin-bottom: 1.25rem;
+    line-height: 1.6;
+  }
+  .tag-desc strong { color: var(--text); font-weight: 600; }
+
+  .category-switcher {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .switcher-label {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-right: 0.125rem;
+  }
+  .switcher-pill {
+    padding: 0.25rem 0.625rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border-bright);
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .switcher-pill:hover { color: var(--text); border-color: var(--red); background: var(--red-dim); }
+  .switcher-pill.active {
+    background: var(--red-dim);
+    border-color: rgba(227, 19, 55, 0.35);
+    color: var(--red-light);
+  }
+
+  /* Actions */
+  .tag-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    min-width: 220px;
+  }
+
+  .rss-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.125rem;
+    background: var(--red);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .rss-btn:hover { background: var(--red-light); transform: translateY(-1px); }
+
+  .feed-url-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg);
+    border: 1px solid var(--border-bright);
+    border-radius: 6px;
+    padding: 0.45rem 0.625rem;
+    overflow: hidden;
+  }
+  .feed-url-row code {
+    font-family: 'Instrument Sans', monospace;
+    font-size: 0.7rem;
+    color: var(--amber);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .copy-btn-sm {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    padding: 0.125rem;
+    transition: color 0.15s;
+    flex-shrink: 0;
+  }
+  .copy-btn-sm:hover { color: var(--text-muted); }
+  .copy-btn-sm.copied { color: #4EC994; }
+
+  .alt-feeds {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+  .alt-feeds-label {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+  .alt-pill {
+    padding: 0.2rem 0.5rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-family: 'Instrument Sans', monospace;
+    color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .alt-pill:hover { border-color: var(--amber); color: var(--amber); background: var(--amber-dim); }
+
+  /* ── Posts ── */
+  .posts-section { padding: 3rem 2rem; }
+  .posts-inner { max-width: var(--max-w); margin: 0 auto; }
+
+  .posts-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .posts-header h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .posts-count { font-size: 0.8125rem; color: var(--text-dim); }
+
+  .no-posts {
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 2rem 0;
+  }
+
+  .post-list {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .post-item {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+  }
+  .post-item:last-child { border-bottom: none; }
+  .post-item:hover { background: var(--surface); }
+  .post-item:hover .post-arrow { opacity: 1; color: var(--red); }
+  .post-item:hover .post-title { color: var(--red-light); }
+
+  .post-index {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    min-width: 1.75rem;
+    flex-shrink: 0;
+  }
+  .post-body { flex: 1; min-width: 0; }
+  .post-title {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.12s;
+  }
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+  .post-author {
+    color: var(--text-muted);
+    transition: color 0.12s;
+    font-weight: 500;
+  }
+  .post-author:hover { color: var(--amber); }
+  .post-sep { color: var(--border-bright); }
+  .post-arrow {
+    font-size: 0.875rem;
+    color: var(--text-dim);
+    opacity: 0;
+    transition: all 0.12s;
+    flex-shrink: 0;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .tag-header-inner { grid-template-columns: 1fr; gap: 2rem; }
+    .tag-actions { min-width: unset; }
+  }
+  @media (max-width: 560px) {
+    .tag-header-inner { padding: 2rem 1.25rem; }
+    .posts-section { padding: 2.5rem 1.25rem; }
+  }
+</style>
