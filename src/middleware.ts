@@ -26,13 +26,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return next();
   }
 
-  const url    = new URL(request.url);
-  const origin = url.origin;
-  const path   = url.pathname;
-  const qs     = url.search;
+  const url  = new URL(request.url);
+  const path = url.pathname;
+  const qs   = url.search;
 
+  // Use hardcoded origin — behind Heroku's reverse proxy, url.origin
+  // resolves to http://localhost rather than the public domain.
   function xml(newPath: string) {
-    return Response.redirect(`${origin}${newPath}${qs}`, 301);
+    return Response.redirect(`https://hiverss.com${newPath}${qs}`, 301);
   }
 
   // /@username  →  /@username.xml
