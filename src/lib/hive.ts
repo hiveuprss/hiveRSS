@@ -14,6 +14,8 @@ const USER_CATEGORIES = new Set([
   'blog', 'feed', 'comments',
 ]);
 
+const FEATURED_COMMUNITIES = ['hive-12390'];
+
 export interface HivePost {
   title: string;
   url: string;
@@ -38,6 +40,7 @@ export async function getCommunityPosts(community: string, limit: number): Promi
   // Re-sorting by created moves them to their natural chronological position.
   const posts = await client.call('bridge', 'get_ranked_posts', [{ tag: community, limit, sort: 'created' }]);
   return posts
+    .filter((p: any) => !p.stats?.gray && !p.stats?.hide)
     .sort((a: HivePost, b: HivePost) => new Date(b.created).getTime() - new Date(a.created).getTime());
 }
 
@@ -112,7 +115,21 @@ export interface HiveCommunity {
 }
 
 export async function getCommunities(limit = 100): Promise<HiveCommunity[]> {
-  return client.call('bridge', 'list_communities', [{ limit, sort: 'rank', observer: '' }]);
+  const communities = await client.call('bridge', 'list_communities', [{ limit, sort: 'rank', observer: '' }]);
+
+  // Find which featured communities are missing from the ranked list
+  const communityNames = new Set(communities.map(c => c.name));
+  const missingFeatured = FEATURED_COMMUNITIES.filter(name => !communityNames.has(name));
+
+  // Fetch missing featured communities individually and append them
+  if (missingFeatured.length > 0) {
+    const featuredCommunities = await Promise.all(
+      missingFeatured.map(name => client.call('bridge', 'get_community', [{ name, observer: '' }]))
+    );
+    communities.push(...featuredCommunities);
+  }
+
+  return communities;
 }
 
 export async function getProfile(username: string): Promise<HiveProfile | null> {
