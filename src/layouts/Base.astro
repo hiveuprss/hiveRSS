@@ -9,6 +9,12 @@ const {
   description = 'RSS feeds for any Hive author, tag, or community. Subscribe in Feedly, NetNewsWire, or any RSS reader.',
   ogImage,
 } = Astro.props;
+
+// Align canonical with middleware: /new/tag duplicates /created/tag; Hive accounts are lowercase.
+let canonicalPath = Astro.url.pathname;
+const newTagDup = canonicalPath.match(/^\/new\/([^/.]+)$/);
+if (newTagDup) canonicalPath = `/created/${newTagDup[1]}`;
+else canonicalPath = canonicalPath.replace(/^\/@([^/.]+)/, (_, u) => `/@${u.toLowerCase()}`);
 ---
 
 <!doctype html>
@@ -29,7 +35,7 @@ const {
       href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;1,400&display=swap"
       rel="stylesheet"
     />
-    <link rel="canonical" href={new URL(Astro.url.pathname, 'https://hiverss.com').href} />
+    <link rel="canonical" href={new URL(canonicalPath, 'https://hiverss.com').href} />
     <link rel="sitemap" href="/sitemap.xml" />
     <link rel="icon" href="/favicon.ico" />
   </head>

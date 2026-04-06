@@ -1,5 +1,7 @@
 import { defineMiddleware } from 'astro:middleware';
 
+const PUBLIC_SITE = 'https://hiverss.com';
+
 /**
  * Legacy redirect middleware
  *
@@ -21,36 +23,72 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const { request } = context;
   const accept = request.headers.get('accept') ?? '';
 
-  // Browsers send text/html — let them through to the HTML page
-  if (accept.includes('text/html')) {
-    return next();
-  }
-
   const url  = new URL(request.url);
   const path = url.pathname;
   const qs   = url.search;
 
   // Use hardcoded origin — behind Heroku's reverse proxy, url.origin
   // resolves to http://localhost rather than the public domain.
-  function xml(newPath: string) {
-    return Response.redirect(`https://hiverss.com${newPath}${qs}`, 301);
+  function redirect(locationPath: string) {
+    return Response.redirect(`${PUBLIC_SITE}${locationPath}${qs}`, 301);
+  }
+
+  // ── SEO: one URL for "new" tag feeds (API treats new === created) ──
+  const newTag = path.match(/^\/new\/([^/.]+)(\.xml)?$/);
+  if (newTag) {
+    const tag = newTag[1];
+    const hasXml = Boolean(newTag[2]);
+    if (hasXml || !accept.includes('text/html')) {
+      return redirect(`/created/${tag}.xml`);
+    }
+    return redirect(`/created/${tag}`);
+  }
+
+  // ── SEO: Hive account names are lowercase — avoid duplicate /@Mixed URLs ──
+  const userOnly = path.match(/^\/@([^/.]+)$/);
+  if (userOnly) {
+    const u = userOnly[1];
+    const lower = u.toLowerCase();
+    if (u !== lower) {
+      if (!accept.includes('text/html')) return redirect(`/@${lower}.xml`);
+      return redirect(`/@${lower}`);
+    }
+  }
+
+  const userType = path.match(/^\/@([^/.]+)\/(blog|feed|comments|votes)(\.xml)?$/);
+  if (userType) {
+    const u = userType[1];
+    const lower = u.toLowerCase();
+    const t = userType[2];
+    const xmlExt = userType[3] || '';
+    if (u !== lower) {
+      if (!accept.includes('text/html')) return redirect(`/@${lower}/${t}.xml`);
+      return redirect(`/@${lower}/${t}${xmlExt}`);
+    }
+  }
+
+  // Browsers send text/html — let them through to the HTML page
+  if (accept.includes('text/html')) {
+    return next();
   }
 
   // /@username  →  /@username.xml
-  const userOnly = path.match(/^\/@([^/.]+)$/);
-  if (userOnly) return xml(`/@${userOnly[1]}.xml`);
+  const userBare = path.match(/^\/@([^/.]+)$/);
+  if (userBare) return redirect(`/@${userBare[1]}.xml`);
 
   // /@username/blog|feed|comments|votes  →  /@username/type.xml
-  const userType = path.match(/^\/@([^/.]+)\/(blog|feed|comments|votes)$/);
-  if (userType) return xml(`/@${userType[1]}/${userType[2]}.xml`);
+  const userTypeBare = path.match(/^\/@([^/.]+)\/(blog|feed|comments|votes)$/);
+  if (userTypeBare) return redirect(`/@${userTypeBare[1]}/${userTypeBare[2]}.xml`);
 
   // /community/name  →  /community/name.xml
   const community = path.match(/^\/community\/([^/.]+)$/);
-  if (community) return xml(`/community/${community[1]}.xml`);
+  if (community) return redirect(`/community/${community[1]}.xml`);
 
   // /trending|hot|created|new|promoted/tag  →  /category/tag.xml
   const tagPath = path.match(/^\/([^/.]+)\/([^/.]+)$/);
-  if (tagPath && RSS_CATEGORIES.has(tagPath[1])) return xml(`/${tagPath[1]}/${tagPath[2]}.xml`);
+  if (tagPath && RSS_CATEGORIES.has(tagPath[1])) {
+    return redirect(`/${tagPath[1]}/${tagPath[2]}.xml`);
+  }
 
   return next();
 });
