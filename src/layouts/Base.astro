@@ -12,9 +12,24 @@ const {
 
 // Align canonical with middleware: /new/tag duplicates /created/tag; Hive accounts are lowercase.
 let canonicalPath = Astro.url.pathname;
-const newTagDup = canonicalPath.match(/^\/new\/([^/.]+)$/);
-if (newTagDup) canonicalPath = `/created/${newTagDup[1]}`;
-else canonicalPath = canonicalPath.replace(/^\/@([^/.]+)/, (_, u) => `/@${u.toLowerCase()}`);
+
+if (canonicalPath.startsWith('/new/')) {
+  const tag = canonicalPath.slice('/new/'.length);
+  if (tag && !tag.includes('/')) {
+    canonicalPath = `/created/${tag}`;
+  }
+}
+
+if (canonicalPath.startsWith('/@')) {
+  const rest = canonicalPath.slice(2);
+  const slashIndex = rest.indexOf('/');
+  if (slashIndex === -1) {
+    canonicalPath = `/@${rest.toLowerCase()}`;
+  } else {
+    const user = rest.slice(0, slashIndex).toLowerCase();
+    canonicalPath = `/@${user}${rest.slice(slashIndex)}`;
+  }
+}
 ---
 
 <!doctype html>
