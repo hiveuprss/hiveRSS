@@ -24,6 +24,14 @@ const INTERFACES: Record<string, string> = {
 
 const DEFAULT_BASE = 'https://hive.blog';
 
+/** Main frontends shown on the home page interface picker (all slugs still work via `INTERFACES`). */
+export const INTERFACE_QUERY_OPTIONS: ReadonlyArray<{ value: string; label: string }> = [
+  { value: '', label: 'hive.blog (default)' },
+  { value: 'peakd', label: 'PeakD' },
+  { value: 'ecency', label: 'Ecency' },
+  { value: 'inleo', label: 'InLeo' },
+];
+
 export function getInterfaceBase(iface?: string): string {
   if (!iface) return DEFAULT_BASE;
   return INTERFACES[iface.toLowerCase()] ?? DEFAULT_BASE;

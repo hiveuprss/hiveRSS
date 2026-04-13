@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { INTERFACE_QUERY_OPTIONS } from '../lib/interfaces';
 
 const communities = [
   { tag: 'hive-167922', name: 'InLeo',          desc: 'Crypto, finance & economics',   icon: '📈', color: '#F5A623' },
@@ -39,6 +40,17 @@ const communities = [
               spellcheck="false"
               aria-label="Enter a Hive username or tag"
             />
+          </div>
+          <div class="builder-interface-row">
+            <label class="interface-label" for="interface-select">Post links open in</label>
+            <select id="interface-select" class="interface-select" aria-describedby="interface-hint">
+              {INTERFACE_QUERY_OPTIONS.map((o) => (
+                <option value={o.value}>{o.label}</option>
+              ))}
+            </select>
+            <p id="interface-hint" class="interface-hint">
+              Adds <code class="interface-code">?interface=…</code> so feed items point at your preferred Hive site.
+            </p>
           </div>
           <div class="builder-output">
             <span id="feed-url-display" class="feed-url-text">https://hiverss.com/@username</span>
@@ -183,14 +195,17 @@ const communities = [
 </Base>
 
 <script>
+  const STORAGE_KEY = 'hiverss-interface';
+
   const input    = document.getElementById('feed-input')    as HTMLInputElement;
+  const ifaceSel = document.getElementById('interface-select') as HTMLSelectElement;
   const display  = document.getElementById('feed-url-display')!;
   const copyBtn  = document.getElementById('copy-btn')!;
   const copyLbl  = document.getElementById('copy-label')!;
   const iconCopy = document.getElementById('icon-copy')!;
   const iconChk  = document.getElementById('icon-check')!;
 
-  function buildUrl(val: string): string {
+  function buildPathUrl(val: string): string {
     val = val.trim();
     if (!val) return 'https://hiverss.com/@username';
     if (val.startsWith('@'))  return `https://hiverss.com/${val}`;
@@ -199,8 +214,29 @@ const communities = [
     return `https://hiverss.com/@${val}`;
   }
 
-  input.addEventListener('input', () => {
-    display.textContent = buildUrl(input.value);
+  function buildUrl(val: string, interfaceSlug: string): string {
+    const base = buildPathUrl(val);
+    if (!interfaceSlug) return base;
+    const u = new URL(base);
+    u.searchParams.set('interface', interfaceSlug);
+    return u.toString();
+  }
+
+  function refreshDisplay() {
+    display.textContent = buildUrl(input.value, ifaceSel.value);
+  }
+
+  const savedIface = localStorage.getItem(STORAGE_KEY);
+  if (savedIface !== null && [...ifaceSel.options].some((o) => o.value === savedIface)) {
+    ifaceSel.value = savedIface;
+  }
+  refreshDisplay();
+
+  input.addEventListener('input', refreshDisplay);
+
+  ifaceSel.addEventListener('change', () => {
+    localStorage.setItem(STORAGE_KEY, ifaceSel.value);
+    refreshDisplay();
   });
 
   copyBtn.addEventListener('click', async () => {
@@ -224,7 +260,7 @@ const communities = [
     btn.addEventListener('click', () => {
       const val = btn.dataset.value || '';
       input.value = val;
-      display.textContent = buildUrl(val);
+      refreshDisplay();
     });
   });
 </script>
@@ -347,6 +383,55 @@ const communities = [
     min-width: 0;
   }
   #feed-input::placeholder { color: var(--text-dim); }
+
+  .builder-interface-row {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.875rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .interface-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.375rem;
+  }
+
+  .interface-select {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg);
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.875rem;
+    font-family: 'Instrument Sans', sans-serif;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .interface-select:hover { border-color: var(--border-bright); }
+  .interface-select:focus {
+    outline: none;
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(227, 19, 55, 0.1);
+  }
+
+  .interface-hint {
+    margin: 0.5rem 0 0;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    line-height: 1.45;
+  }
+  .interface-code {
+    font-family: 'Instrument Sans', monospace;
+    font-size: 0.7rem;
+    color: var(--amber);
+    background: var(--amber-dim);
+    padding: 0.05rem 0.35rem;
+    border-radius: 3px;
+  }
 
   .builder-output {
     display: flex;
