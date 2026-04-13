@@ -1,6 +1,8 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getTopicPosts } from '../../lib/hive';
+import { getInterface } from '../../lib/params';
+import { makeFeedItemUrl } from '../../lib/interfaces';
 
 const { category, tag } = Astro.params;
 
@@ -18,6 +20,8 @@ if (!categoryLabel) {
 }
 
 const posts = await getTopicPosts(category!, tag!, 20).catch(() => []);
+
+const iface = getInterface(Astro.url);
 
 const feedUrl  = `https://hiverss.com/${category}/${tag}.xml`;
 const hiveUrl  = `https://hive.blog/${category}/${tag}`;
@@ -121,27 +125,25 @@ function fmtDate(dateStr: string): string {
         ) : (
           <div class="post-list">
             {posts.map((post, i) => (
-              <a
-                class="post-item"
-                href={`https://peakd.com${post.url}`}
-                target="_blank"
-                rel="noopener"
-              >
+              <div class="post-item">
                 <span class="post-index">{String(i + 1).padStart(2, '0')}</span>
                 <div class="post-body">
-                  <h3 class="post-title">{post.title || `@${post.author}/${post.permlink}`}</h3>
+                  <a
+                    class="post-title-link"
+                    href={makeFeedItemUrl(post.url, iface)}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    <h3 class="post-title">{post.title || `@${post.author}/${post.permlink}`}</h3>
+                    <span class="post-arrow" aria-hidden="true">↗</span>
+                  </a>
                   <div class="post-meta">
-                    <a
-                      class="post-author"
-                      href={`/@${post.author}`}
-                      onclick="(function(e){e.stopPropagation()})(event)"
-                    >@{post.author}</a>
+                    <a class="post-author" href={`/@${post.author}`}>@{post.author}</a>
                     <span class="post-sep">·</span>
                     <span class="post-date">{fmtDate(post.created)}</span>
                   </div>
                 </div>
-                <span class="post-arrow">↗</span>
-              </a>
+              </div>
             ))}
           </div>
         )}
@@ -400,6 +402,24 @@ function fmtDate(dateStr: string): string {
   .post-item:hover .post-arrow { opacity: 1; color: var(--red); }
   .post-item:hover .post-title { color: var(--red-light); }
 
+  .post-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .post-title-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-width: 0;
+    transition: color 0.12s;
+  }
+  .post-title-link:hover .post-title { color: var(--red-light); }
+  .post-title-link:hover .post-arrow { opacity: 1; color: var(--red); }
+
   .post-index {
     font-family: 'Syne', sans-serif;
     font-size: 0.75rem;
@@ -408,12 +428,12 @@ function fmtDate(dateStr: string): string {
     min-width: 1.75rem;
     flex-shrink: 0;
   }
-  .post-body { flex: 1; min-width: 0; }
   .post-title {
     font-size: 0.9375rem;
     font-weight: 500;
     color: var(--text);
-    margin-bottom: 0.25rem;
+    flex: 1;
+    min-width: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
