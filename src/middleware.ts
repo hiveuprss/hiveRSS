@@ -41,42 +41,25 @@ function stripTrackingParams(search: string): string {
 }
 
 /**
- * Client-facing scheme. When missing, returns null — do not fall back to
- * `new URL(request.url).protocol`: behind TLS termination Node often sees
- * `http://` internally, and redirecting "to HTTPS" would loop forever.
- */
-function forwardedClientProto(request: Request): 'http' | 'https' | null {
-  const raw = request.headers.get('x-forwarded-proto');
-  if (!raw) {
-    return null;
-  }
-  const first = raw.split(',')[0]?.trim().toLowerCase();
-  if (first === 'https' || first === 'http') {
-    return first;
-  }
-  return null;
-}
-
-/**
  * One public origin: https://hiverss.com (no www, no http).
  * Fixes GSC "Alternate page with proper canonical" for duplicate host/protocol/query URLs.
  */
 function canonicalOriginRedirect(request: Request): Response | null {
   const url = new URL(request.url);
   const forwardedHost = request.headers.get('x-forwarded-host');
+  const forwardedProto = request.headers.get('x-forwarded-proto');
   const host = (forwardedHost ?? request.headers.get('host') ?? url.hostname)
     .split(':')[0]
     .toLowerCase();
+  const proto = (forwardedProto ?? url.protocol.replace(':', '')).toLowerCase();
 
   if (host !== APEX_HOST && host !== `www.${APEX_HOST}`) {
     return null;
   }
 
-  const clientProto = forwardedClientProto(request);
   const cleanSearch = stripTrackingParams(url.search);
   const wrongHost = host !== APEX_HOST;
-  // Only upgrade when the proxy explicitly says the client used HTTP.
-  const wrongProto = clientProto === 'http';
+  const wrongProto = proto !== 'https';
   const wrongQs = url.search !== cleanSearch;
 
   if (!wrongHost && !wrongProto && !wrongQs) {
