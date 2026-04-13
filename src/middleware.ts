@@ -19,65 +19,8 @@ const PUBLIC_SITE = 'https://hiverss.com';
 
 const RSS_CATEGORIES = new Set(['trending', 'hot', 'created', 'new', 'promoted']);
 
-const APEX_HOST = 'hiverss.com';
-
-/** Params that do not change page content; drop them so one URL maps to the canonical. */
-const TRACKING_QUERY_KEYS = [
-  'ref',
-  'utm_source',
-  'utm_medium',
-  'utm_campaign',
-  'utm_content',
-  'utm_term',
-] as const;
-
-function stripTrackingParams(search: string): string {
-  const params = new URLSearchParams(search);
-  for (const key of TRACKING_QUERY_KEYS) {
-    params.delete(key);
-  }
-  const out = params.toString();
-  return out ? `?${out}` : '';
-}
-
-/**
- * One public origin: https://hiverss.com (no www, no http).
- * Fixes GSC "Alternate page with proper canonical" for duplicate host/protocol/query URLs.
- */
-function canonicalOriginRedirect(request: Request): Response | null {
-  const url = new URL(request.url);
-  const forwardedHost = request.headers.get('x-forwarded-host');
-  const forwardedProto = request.headers.get('x-forwarded-proto');
-  const host = (forwardedHost ?? request.headers.get('host') ?? url.hostname)
-    .split(':')[0]
-    .toLowerCase();
-  const proto = (forwardedProto ?? url.protocol.replace(':', '')).toLowerCase();
-
-  if (host !== APEX_HOST && host !== `www.${APEX_HOST}`) {
-    return null;
-  }
-
-  const cleanSearch = stripTrackingParams(url.search);
-  const wrongHost = host !== APEX_HOST;
-  const wrongProto = proto !== 'https';
-  const wrongQs = url.search !== cleanSearch;
-
-  if (!wrongHost && !wrongProto && !wrongQs) {
-    return null;
-  }
-
-  const target = `https://${APEX_HOST}${url.pathname}${cleanSearch}`;
-  return Response.redirect(target, 301);
-}
-
 export const onRequest = defineMiddleware(async (context, next) => {
   const { request } = context;
-
-  const originRedirect = canonicalOriginRedirect(request);
-  if (originRedirect) {
-    return originRedirect;
-  }
-
   const accept = request.headers.get('accept') ?? '';
 
   const url  = new URL(request.url);
