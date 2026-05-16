@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { communityJsonLd } from '../../lib/json-ld';
 import { client, getCommunityPosts } from '../../lib/hive';
 
 const { name } = Astro.params;
@@ -32,6 +33,9 @@ if (!community) {
 }
 
 const feedUrl = `https://hiverss.com/community/${name}.xml`;
+const pageTitle = `${community.title} — Hive community feed on HiveRSS`;
+const metaDescription =
+  community.about || `RSS feed and latest posts from the ${community.title} community on Hive.`;
 
 function fmt(n: number): string {
   return n?.toLocaleString('en-US') ?? '—';
@@ -45,10 +49,12 @@ function fmtDate(dateStr: string): string {
 ---
 
 <Base
-  title={`${community.title} — Hive community feed on HiveRSS`}
-  description={community.about || `RSS feed and latest posts from the ${community.title} community on Hive.`}
+  title={pageTitle}
+  description={metaDescription}
+  jsonLd={communityJsonLd(name!, pageTitle, metaDescription)}
+  rssAlternate={{ title: `RSS feed: ${community.title}`, href: feedUrl }}
 >
-  <main>
+  <main id="main-content" tabindex="-1">
 
     <!-- ── Community header ── -->
     <section class="comm-header">

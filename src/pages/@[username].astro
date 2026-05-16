@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { profileJsonLd } from '../lib/json-ld';
 import { getProfile, getUserPosts } from '../lib/hive';
 
 const { username } = Astro.params;
@@ -30,14 +31,20 @@ function fmt(n: number): string {
 
 const repScore = Math.round(profile.reputation ?? 25);
 const displayName = username!;
+const pageTitle = `@${displayName} on Hive — HiveRSS`;
+const metaDescription =
+  profile.about ||
+  `Follow @${displayName}'s posts on Hive via RSS. ${profile.post_count ?? 0} posts, ${fmt(profile.followers ?? 0)} followers.`;
 ---
 
 <Base
-  title={`@${displayName} on Hive — HiveRSS`}
-  description={profile.about || `Follow @${displayName}'s posts on Hive via RSS. ${profile.post_count ?? 0} posts, ${fmt(profile.followers ?? 0)} followers.`}
+  title={pageTitle}
+  description={metaDescription}
   ogImage={profile.profile_image}
+  jsonLd={profileJsonLd(displayName, pageTitle, metaDescription)}
+  rssAlternate={{ title: `RSS feed for @${displayName}`, href: feedUrl }}
 >
-  <main>
+  <main id="main-content" tabindex="-1">
 
     <!-- ── Author header ── -->
     <section class="author-header">

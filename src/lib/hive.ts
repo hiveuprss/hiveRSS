@@ -118,7 +118,7 @@ export async function getCommunities(limit = 100): Promise<HiveCommunity[]> {
   const communities = await client.call('bridge', 'list_communities', [{ limit, sort: 'rank', observer: '' }]);
 
   // Find which featured communities are missing from the ranked list
-  const communityNames = new Set(communities.map(c => c.name));
+  const communityNames = new Set(communities.map((c: HiveCommunity) => c.name));
   const missingFeatured = FEATURED_COMMUNITIES.filter(name => !communityNames.has(name));
 
   // Fetch missing featured communities individually and append them

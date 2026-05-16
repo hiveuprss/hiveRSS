@@ -1,6 +1,30 @@
 ---
 import Base from '../layouts/Base.astro';
 import { INTERFACE_QUERY_OPTIONS } from '../lib/interfaces';
+import { faqJsonLd, homeJsonLd } from '../lib/json-ld';
+
+const HOME_FAQ = [
+  {
+    question: 'Do I need a Hive account to use HiveRSS?',
+    answer:
+      'No. You can subscribe to authors, tags, and communities in any RSS reader without logging into Hive. A Hive account is only needed if you want to publish or vote on-chain.',
+  },
+  {
+    question: 'Which RSS apps work with HiveRSS?',
+    answer:
+      'Any standard RSS reader works, including Feedly, Inoreader, NetNewsWire, Reeder, and built-in readers in some browsers and mail apps. Paste the feed URL your reader provides for “subscribe by URL”.',
+  },
+  {
+    question: 'What is the difference between trending, hot, and new for tag feeds?',
+    answer:
+      'They mirror common Hive sort orders: trending emphasizes recent engagement, hot highlights active discussion, and new lists the latest posts with that tag. Pick the one that best matches how you want to discover posts.',
+  },
+  {
+    question: 'Can I follow an entire Hive community?',
+    answer:
+      'Yes. Open a community page on HiveRSS and use the RSS URL shown there, or use the pattern hiverss.com/community/your-community-id.',
+  },
+];
 
 const communities = [
   { tag: 'hive-167922', name: 'InLeo',          desc: 'Crypto, finance & economics',   icon: '📈', color: '#F5A623' },
@@ -12,8 +36,11 @@ const communities = [
 ];
 ---
 
-<Base title="HiveRSS — Follow Hive creators in your RSS reader">
-  <main>
+<Base
+  title="HiveRSS — Follow Hive creators in your RSS reader"
+  jsonLd={[homeJsonLd(), faqJsonLd(HOME_FAQ)]}
+>
+  <main id="main-content" tabindex="-1">
 
     <!-- ── Hero ── -->
     <section class="hero">
@@ -188,6 +215,21 @@ const communities = [
             Explore content →
           </a>
         </div>
+      </div>
+    </section>
+
+    <!-- ── FAQ ── -->
+    <section class="faq" aria-labelledby="faq-heading">
+      <div class="faq-inner">
+        <h2 id="faq-heading">Common questions</h2>
+        <dl class="faq-list">
+          {HOME_FAQ.map((item) => (
+            <>
+              <dt>{item.question}</dt>
+              <dd>{item.answer}</dd>
+            </>
+          ))}
+        </dl>
       </div>
     </section>
 
@@ -768,6 +810,38 @@ const communities = [
   }
   .btn-ghost:hover { color: var(--text); }
 
+  /* ── FAQ ── */
+  .faq {
+    padding: 4rem 2rem 5rem;
+    border-top: 1px solid var(--border);
+  }
+  .faq-inner {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .faq h2 {
+    font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+  .faq-list dt {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 1.25rem;
+  }
+  .faq-list dt:first-child {
+    margin-top: 0;
+  }
+  .faq-list dd {
+    font-size: 0.9375rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+    margin: 0.4rem 0 0;
+    padding: 0;
+  }
+
   /* ── Responsive ── */
   @media (max-width: 900px) {
     .hero {
@@ -780,7 +854,7 @@ const communities = [
 
   @media (max-width: 560px) {
     .hero { padding: 3rem 1.25rem 2.5rem; }
-    .communities, .about { padding: 3.5rem 1.25rem; }
+    .communities, .about, .faq { padding: 3.5rem 1.25rem; }
     .community-grid { grid-template-columns: 1fr; }
     .pattern-list { gap: 0.75rem; }
     .pattern-divider { display: none; }

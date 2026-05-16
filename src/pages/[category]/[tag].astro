@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { tagBrowseJsonLd } from '../../lib/json-ld';
 import { getTopicPosts } from '../../lib/hive';
 import { getInterface } from '../../lib/params';
 import { makeFeedItemUrl } from '../../lib/interfaces';
@@ -35,13 +36,18 @@ function fmtDate(dateStr: string): string {
     year: 'numeric', month: 'short', day: 'numeric',
   });
 }
+
+const pageTitle = `${categoryLabel} #${tag} posts on Hive — HiveRSS`;
+const metaDescription = `Browse ${categoryLabel.toLowerCase()} posts tagged #${tag} on the Hive blockchain. Subscribe via RSS to follow new content in your reader.`;
 ---
 
 <Base
-  title={`${categoryLabel} #${tag} posts on Hive — HiveRSS`}
-  description={`Browse ${categoryLabel.toLowerCase()} posts tagged #${tag} on the Hive blockchain. Subscribe via RSS to follow new content in your reader.`}
+  title={pageTitle}
+  description={metaDescription}
+  jsonLd={tagBrowseJsonLd(category!, tag!, pageTitle, metaDescription)}
+  rssAlternate={{ title: `RSS: ${categoryLabel} #${tag}`, href: feedUrl }}
 >
-  <main>
+  <main id="main-content" tabindex="-1">
 
     <!-- ── Tag header ── -->
     <section class="tag-header">

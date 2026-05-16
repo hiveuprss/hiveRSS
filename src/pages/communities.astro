@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { communitiesListJsonLd } from '../lib/json-ld';
 import { getCommunities } from '../lib/hive';
 
 const communities = await getCommunities(100);
@@ -9,13 +10,17 @@ function fmt(n: number): string {
   if (n >= 1_000)     return `${(n / 1_000).toFixed(1)}K`;
   return String(n ?? 0);
 }
+
+const pageTitle = 'Browse Hive Communities — HiveRSS';
+const metaDescription = `Browse ${communities.length} active Hive communities. Subscribe to any community via RSS and follow new posts in your reader.`;
 ---
 
 <Base
-  title="Browse Hive Communities — HiveRSS"
-  description={`Browse ${communities.length} active Hive communities. Subscribe to any community via RSS and follow new posts in your reader.`}
+  title={pageTitle}
+  description={metaDescription}
+  jsonLd={communitiesListJsonLd(pageTitle, metaDescription)}
 >
-  <main>
+  <main id="main-content" tabindex="-1">
 
     <section class="page-header">
       <div class="page-header-inner">

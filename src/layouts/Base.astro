@@ -3,12 +3,33 @@ interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  /** Optional JSON-LD (e.g. WebSite, FAQPage); emit as separate script tags. */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  robots?: string;
+  /** Discoverable RSS for this resource (Search can relate HTML pages to feeds). */
+  rssAlternate?: { title: string; href: string };
 }
 const {
   title,
   description = 'RSS feeds for any Hive author, tag, or community. Subscribe in Feedly, NetNewsWire, or any RSS reader.',
   ogImage,
+  jsonLd,
+  robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+  rssAlternate,
 } = Astro.props;
+
+const site = Astro.site ?? new URL('https://hiverss.com/');
+const siteOrigin = site.origin;
+
+function toAbsoluteImage(src: string | undefined): string | undefined {
+  if (!src) return undefined;
+  if (/^https?:\/\//i.test(src)) return src;
+  if (src.startsWith('//')) return `https:${src}`;
+  const path = src.startsWith('/') ? src : `/${src}`;
+  return new URL(path, siteOrigin).href;
+}
+
+const ogImageAbsolute = toAbsoluteImage(ogImage);
 
 // Align canonical with middleware: /new/tag duplicates /created/tag; Hive accounts are lowercase.
 let canonicalPath = Astro.url.pathname;
@@ -30,6 +51,13 @@ if (canonicalPath.startsWith('/@')) {
     canonicalPath = `/@${user}${rest.slice(slashIndex)}`;
   }
 }
+
+const canonicalUrl = new URL(canonicalPath, siteOrigin).href;
+const jsonLdBlocks = jsonLd
+  ? Array.isArray(jsonLd)
+    ? jsonLd
+    : [jsonLd]
+  : [];
 ---
 
 <!doctype html>
@@ -39,10 +67,22 @@ if (canonicalPath.startsWith('/@')) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="robots" content={robots} />
+    <meta name="theme-color" content="#0B0B0A" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:locale" content="en_US" />
+    {ogImageAbsolute && <meta property="og:image" content={ogImageAbsolute} />}
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:site_name" content="HiveRSS" />
+    <meta
+      name="twitter:card"
+      content={ogImageAbsolute ? 'summary_large_image' : 'summary'}
+    />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImageAbsolute && <meta name="twitter:image" content={ogImageAbsolute} />}
     <meta name="generator" content={Astro.generator} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -50,18 +90,36 @@ if (canonicalPath.startsWith('/@')) {
       href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;1,400&display=swap"
       rel="stylesheet"
     />
-    <link rel="canonical" href={new URL(canonicalPath, 'https://hiverss.com').href} />
+    <link rel="canonical" href={canonicalUrl} />
     <link rel="sitemap" href="/sitemap.xml" />
     <link rel="icon" href="/favicon.ico" />
+    {
+      rssAlternate && (
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title={rssAlternate.title}
+          href={rssAlternate.href}
+        />
+      )
+    }
+    {
+      jsonLdBlocks.map((data) => (
+        <script is:inline type="application/ld+json" set:html={JSON.stringify(data)} />
+      ))
+    }
   </head>
   <body>
-    <nav>
-      <a class="wordmark" href="/">Hive<span>RSS</span></a>
-      <div class="nav-links">
-        <a href="/#communities">Communities</a>
-        <a href="https://github.com/hiveuprss/hiverss" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </nav>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header class="site-header">
+      <nav aria-label="Primary">
+        <a class="wordmark" href="/">Hive<span>RSS</span></a>
+        <div class="nav-links">
+          <a href="/#communities">Communities</a>
+          <a href="https://github.com/hiveuprss/hiverss" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </nav>
+    </header>
 
     <slot />
 
@@ -118,13 +176,25 @@ if (canonicalPath.startsWith('/@')) {
 
   a { color: inherit; text-decoration: none; }
 
-  h1, h2, h3, h4, h5 {
-    font-family: 'Syne', sans-serif;
-    line-height: 1.1;
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    z-index: 100;
+    padding: 0.75rem 1rem;
+    background: var(--red);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border-radius: 0 0 8px 0;
+    transition: left 0.15s;
+  }
+  .skip-link:focus {
+    left: 0;
+    outline: 2px solid var(--text);
+    outline-offset: 2px;
   }
 
-  /* ── Nav ── */
-  nav {
+  .site-header nav {
     position: sticky;
     top: 0;
     z-index: 50;
@@ -136,6 +206,11 @@ if (canonicalPath.startsWith('/@')) {
     background: rgba(11, 11, 10, 0.85);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: 'Syne', sans-serif;
+    line-height: 1.1;
   }
 
   .wordmark {
@@ -191,7 +266,7 @@ if (canonicalPath.startsWith('/@')) {
   .footer-links a:hover { color: var(--text-muted); }
 
   @media (max-width: 600px) {
-    nav { padding: 1rem 1.25rem; }
+    .site-header nav { padding: 1rem 1.25rem; }
     .nav-links { gap: 1.25rem; }
     .footer-inner { flex-direction: column; gap: 0.75rem; text-align: center; }
   }
