@@ -1,0 +1,43 @@
+# HiveRSS
+
+> RSS and Atom feeds for the Hive blockchain. Subscribe to any Hive author, tag, or community in standard RSS readers — no Hive account required.
+
+HiveRSS mirrors common Hive URL patterns on hiverss.com. Append `.xml` to feed endpoints (or use legacy bare paths; RSS clients are redirected automatically). HTML landing pages exist at the same paths without `.xml`.
+
+## Site
+
+- [Home](https://hiverss.com/): Feed URL builder and overview
+- [Communities](https://hiverss.com/communities): Browse Hive community feeds
+- [Sitemap](https://hiverss.com/sitemap.xml): All indexable pages
+
+## Feed patterns
+
+- [Author blog](https://hiverss.com/@username.xml): Latest posts by a Hive account
+- [Author followed feed](https://hiverss.com/@username/feed.xml): Posts from accounts the author follows
+- [Author comments](https://hiverss.com/@username/comments.xml): Comments by the author
+- [Author votes](https://hiverss.com/@username/votes.xml): Posts the author recently upvoted
+- [Tag trending](https://hiverss.com/trending/tag.xml): Posts with a tag, trending sort
+- [Tag hot](https://hiverss.com/hot/tag.xml): Posts with a tag, hot sort
+- [Tag new](https://hiverss.com/new/tag.xml): Posts with a tag, newest first
+- [Tag promoted](https://hiverss.com/promoted/tag.xml): Promoted posts for a tag
+- [Community](https://hiverss.com/community/hive-community-id.xml): Posts in a Hive community
+
+Replace `hive.blog` with `hiverss.com` on most Hive content URLs and add `.xml` for the feed, e.g. `https://hive.blog/trending/photography` → `https://hiverss.com/trending/photography.xml`.
+
+## Query parameters
+
+- `interface`: Link items to a Hive frontend (`peakd`, `ecency`, `inleo`, `leofinance`, and others). Default is hive.blog.
+- `tagFilter`: Restrict author feeds to posts with a given tag (e.g. `?tagFilter=travel`).
+- `minVotePct`: On vote feeds, only include votes at or above this percentage (e.g. `?minVotePct=50`).
+- `limit`: Number of items (default 10, max 100).
+
+## Hive
+
+- [Hive](https://hive.io/): Decentralized social blockchain HiveRSS reads from
+- [hive.blog](https://hive.blog): Default frontend for post links in feeds
+
+## Optional
+
+- [README](https://github.com/hiveuprss/hiveRSS/blob/main/README.md): Development, deployment, and full feed reference
+- [Repository](https://github.com/hiveuprss/hiveRSS): Astro SSR app using @astrojs/rss and @hiveio/dhive
+- [robots.txt](https://hiverss.com/robots.txt): Crawler rules and sitemap pointer
