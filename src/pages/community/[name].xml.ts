@@ -2,10 +2,9 @@
 import type { APIRoute } from 'astro';
 import rss from '@astrojs/rss';
 import { getCommunityPosts, filterByTag } from '../../lib/hive';
-import { makeFeedItemUrl } from '../../lib/interfaces';
 import { getInterface, getLimit, getTagFilter, getRefer } from '../../lib/params';
-
-const FEED_BASE = 'https://hiverss.com';
+import { postToItem } from '../../lib/content';
+import { FEED_BASE, FEED_XMLNS, DEFAULT_IMAGE, channelExtras, selfUrl } from '../../lib/feed';
 
 export const GET: APIRoute = async ({ params, request }) => {
   const { name } = params;
@@ -27,14 +26,12 @@ export const GET: APIRoute = async ({ params, request }) => {
       title: `${name} community on Hive`,
       description: `RSS feed for the ${name} community on the Hive blockchain`,
       site: FEED_BASE,
-      items: filtered.map((post: any) => ({
-        title: post.title || `@${post.author}/${post.permlink}`,
-        link: makeFeedItemUrl(post.url, iface, refer),
-        author: post.author,
-        pubDate: new Date(post.created),
-        categories: [post.category],
-      })),
-      customData: `<image><url>https://hiverss.com/hive_logo.png</url><title>${name}</title><link>https://peakd.com/c/${name}</link></image><feed_url>${FEED_BASE}/community/${name}.xml</feed_url>`,
+      items: filtered.map(post => postToItem(post, iface, refer)),
+      customData: channelExtras({
+        self: selfUrl(url),
+        image: { url: DEFAULT_IMAGE, title: name, link: `https://peakd.com/c/${encodeURIComponent(name)}` },
+      }),
+      xmlns: FEED_XMLNS,
     });
   } catch (err: any) {
     return new Response(err?.message ?? 'Internal server error', { status: err?.status ?? 500 });
