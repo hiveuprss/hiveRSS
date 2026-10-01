@@ -27,18 +27,73 @@ export interface HivePost {
   json_metadata: string;
 }
 
+/** Hive discussion/ranked-post APIs reject `limit` above 20 per call. */
+export const MAX_PAGE_SIZE = 20;
+
+interface PageCursor {
+  author: string;
+  permlink: string;
+}
+
+/**
+ * Collect up to `limit` posts by calling `fetchPage` repeatedly, MAX_PAGE_SIZE at a time.
+ * Each follow-up page starts at the last post of the previous one; APIs differ on whether the
+ * start post is included, so one extra is requested and duplicates are dropped.
+ */
+async function fetchPaginated<T extends { author: string; permlink: string }>(
+  limit: number,
+  fetchPage: (pageSize: number, cursor?: PageCursor) => Promise<T[]>,
+): Promise<T[]> {
+  const seen = new Set<string>();
+  const out: T[] = [];
+  let cursor: PageCursor | undefined;
+
+  while (out.length < limit) {
+    const pageSize = Math.min(MAX_PAGE_SIZE, limit - out.length + (cursor ? 1 : 0));
+    const page = await fetchPage(pageSize, cursor);
+
+    let added = 0;
+    for (const post of page) {
+      const key = `${post.author}/${post.permlink}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(post);
+      added++;
+    }
+
+    const last = page[page.length - 1];
+    if (!last || added === 0 || page.length < pageSize) break;
+    cursor = { author: last.author, permlink: last.permlink };
+  }
+
+  return out.slice(0, limit);
+}
+
 export async function getTopicPosts(category: string, tag: string, limit: number): Promise<HivePost[]> {
   const cat = category === 'new' ? 'created' : category;
   if (!TOPIC_CATEGORIES.has(cat)) {
     throw Object.assign(new Error(`Unknown category: ${category}`), { status: 400 });
   }
-  return client.call('condenser_api', `get_discussions_by_${cat}`, [{ tag, limit }]);
+  return fetchPaginated<HivePost>(limit, (pageSize, cursor) =>
+    client.call('condenser_api', `get_discussions_by_${cat}`, [{
+      tag,
+      limit: pageSize,
+      ...(cursor && { start_author: cursor.author, start_permlink: cursor.permlink }),
+    }]),
+  );
 }
 
 export async function getCommunityPosts(community: string, limit: number): Promise<HivePost[]> {
+  const posts = await fetchPaginated<HivePost>(limit, (pageSize, cursor) =>
+    client.call('bridge', 'get_ranked_posts', [{
+      tag: community,
+      limit: pageSize,
+      sort: 'created',
+      ...(cursor && { start_author: cursor.author, start_permlink: cursor.permlink }),
+    }]),
+  );
   // The bridge API prepends pinned posts regardless of sort order.
   // Re-sorting by created moves them to their natural chronological position.
-  const posts = await client.call('bridge', 'get_ranked_posts', [{ tag: community, limit, sort: 'created' }]);
   return posts
     .filter((p: any) => !p.stats?.gray && !p.stats?.hide)
     .sort((a: HivePost, b: HivePost) => new Date(b.created).getTime() - new Date(a.created).getTime());
@@ -48,11 +103,14 @@ export async function getUserPosts(username: string, type: string, limit: number
   if (!USER_CATEGORIES.has(type)) {
     throw Object.assign(new Error(`Unknown user feed type: ${type}`), { status: 400 });
   }
-  // get_discussions_by_comments uses start_author, not tag
-  const params = type === 'comments'
-    ? { start_author: username, limit }
-    : { tag: username, limit };
-  return client.call('condenser_api', `get_discussions_by_${type}`, [params]);
+  return fetchPaginated<HivePost>(limit, (pageSize, cursor) => {
+    // get_discussions_by_comments uses start_author, not tag
+    const params = type === 'comments'
+      ? { start_author: username, limit: pageSize }
+      : { tag: username, limit: pageSize };
+    if (cursor) Object.assign(params, { start_author: cursor.author, start_permlink: cursor.permlink });
+    return client.call('condenser_api', `get_discussions_by_${type}`, [params]);
+  });
 }
 
 export interface VotedPost {

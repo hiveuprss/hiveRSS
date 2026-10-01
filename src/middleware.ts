@@ -19,7 +19,27 @@ const PUBLIC_SITE = 'https://hiverss.com';
 
 const RSS_CATEGORIES = new Set(['trending', 'hot', 'created', 'new', 'promoted']);
 
+/** Feeds are fanned out to several Hive API calls, so let clients and CDNs reuse them briefly. */
+const FEED_CACHE_CONTROL = 'public, max-age=300, s-maxage=300, stale-while-revalidate=600';
+
+function isFeedPath(path: string): boolean {
+  return path.endsWith('.xml') && path !== '/sitemap.xml';
+}
+
 export const onRequest = defineMiddleware(async (context, next) => {
+  const response = await handle(context, next);
+  if (response.status === 200 && isFeedPath(new URL(context.request.url).pathname)) {
+    const headers = new Headers(response.headers);
+    headers.set('Cache-Control', FEED_CACHE_CONTROL);
+    return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+  }
+  return response;
+});
+
+async function handle(
+  context: Parameters<Parameters<typeof defineMiddleware>[0]>[0],
+  next: Parameters<Parameters<typeof defineMiddleware>[0]>[1],
+): Promise<Response> {
   const { request } = context;
   const accept = request.headers.get('accept') ?? '';
 
@@ -91,4 +111,4 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   return next();
-});
+}

@@ -37,17 +37,24 @@ export function getInterfaceBase(iface?: string): string {
   return INTERFACES[iface.toLowerCase()] ?? DEFAULT_BASE;
 }
 
+function withRef(url: string, refer?: string): string {
+  return refer ? `${url}?ref=${encodeURIComponent(refer)}` : url;
+}
+
 export function makeFeedItemUrl(path: string, iface?: string, refer?: string): string {
-  const url = `${getInterfaceBase(iface)}${path}`;
-  return refer ? `${url}?ref=${refer}` : url;
+  return withRef(`${getInterfaceBase(iface)}${path}`, refer);
 }
 
 export function makeTagUrl(category: string, tag: string, iface?: string, refer?: string): string {
-  const url = `${getInterfaceBase(iface)}/${category}/${tag}`;
-  return refer ? `${url}?ref=${refer}` : url;
+  return withRef(
+    `${getInterfaceBase(iface)}/${encodeURIComponent(category)}/${encodeURIComponent(tag)}`,
+    refer,
+  );
 }
 
 export function makeAuthorUrl(username: string, type: string, iface?: string, refer?: string): string {
-  const url = `${getInterfaceBase(iface)}/@${username}/${type}`;
-  return refer ? `${url}?ref=${refer}` : url;
+  return withRef(
+    `${getInterfaceBase(iface)}/@${encodeURIComponent(username)}/${encodeURIComponent(type)}`,
+    refer,
+  );
 }
