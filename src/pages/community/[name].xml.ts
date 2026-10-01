@@ -21,16 +21,14 @@ export const GET: APIRoute = async ({ params, request }) => {
   try {
     const posts = await getCommunityPosts(name, limit);
     const filtered = filterByTag(posts, tagFilter);
+    const title = `${name} community on Hive`;
 
     return rss({
-      title: `${name} community on Hive`,
+      title,
       description: `RSS feed for the ${name} community on the Hive blockchain`,
       site: FEED_BASE,
       items: filtered.map(post => postToItem(post, iface, refer)),
-      customData: channelExtras({
-        self: selfUrl(url),
-        image: { url: DEFAULT_IMAGE, title: name, link: `https://peakd.com/c/${encodeURIComponent(name)}` },
-      }),
+      customData: channelExtras({ self: selfUrl(url), title, imageUrl: DEFAULT_IMAGE }),
       xmlns: FEED_XMLNS,
     });
   } catch (err: any) {
