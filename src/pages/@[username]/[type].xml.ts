@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import rss from '@astrojs/rss';
 import { getUserPosts, getUserVotes, getAccountProfileImage, filterByTag } from '../../lib/hive';
-import { makeFeedItemUrl, makeAuthorUrl } from '../../lib/interfaces';
+import { makeFeedItemUrl } from '../../lib/interfaces';
 import { getInterface, getLimit, getMinVotePct, getTagFilter, getRefer } from '../../lib/params';
 import { postToItem } from '../../lib/content';
 import { FEED_BASE, FEED_XMLNS, channelExtras, selfUrl } from '../../lib/feed';
@@ -22,9 +22,10 @@ export const GET: APIRoute = async ({ params, request }) => {
   try {
     if (type === 'votes') {
       const votes = await getUserVotes(username, limit, minVotePct);
+      const title = `Hive posts voted by @${username}`;
 
       return rss({
-        title: `Hive posts voted by @${username}`,
+        title,
         description: `RSS feed of posts curated by @${username} on Hive`,
         site: FEED_BASE,
         items: votes.map(v => ({
@@ -33,7 +34,7 @@ export const GET: APIRoute = async ({ params, request }) => {
           pubDate: new Date(v.date),
           description: `Vote weight: ${v.vote_percent.toFixed(2)}%`,
         })),
-        customData: channelExtras({ self: selfUrl(url) }),
+        customData: channelExtras({ self: selfUrl(url), title }),
         xmlns: FEED_XMLNS,
       });
     }
@@ -49,16 +50,14 @@ export const GET: APIRoute = async ({ params, request }) => {
     ]);
 
     const filtered = filterByTag(posts, tagFilter);
+    const title = `Posts from @${username}'s ${type}`;
 
     return rss({
-      title: `Posts from @${username}'s ${type}`,
+      title,
       description: `RSS feed for @${username} on Hive`,
       site: FEED_BASE,
       items: filtered.map(post => postToItem(post, iface, refer)),
-      customData: channelExtras({
-        self: selfUrl(url),
-        image: { url: profileImage, title: `@${username}`, link: makeAuthorUrl(username, type, iface, refer) },
-      }),
+      customData: channelExtras({ self: selfUrl(url), title, imageUrl: profileImage }),
       xmlns: FEED_XMLNS,
     });
   } catch (err: any) {

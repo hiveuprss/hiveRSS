@@ -2,7 +2,6 @@
 import type { APIRoute } from 'astro';
 import rss from '@astrojs/rss';
 import { getTopicPosts, filterByTag } from '../../lib/hive';
-import { makeTagUrl } from '../../lib/interfaces';
 import { getInterface, getLimit, getTagFilter, getRefer } from '../../lib/params';
 import { postToItem } from '../../lib/content';
 import { FEED_BASE, FEED_XMLNS, DEFAULT_IMAGE, channelExtras, selfUrl } from '../../lib/feed';
@@ -22,16 +21,14 @@ export const GET: APIRoute = async ({ params, request }) => {
   try {
     const posts = await getTopicPosts(category, tag, limit);
     const filtered = filterByTag(posts, tagFilter);
+    const title = `${category} #${tag} posts on Hive`;
 
     return rss({
-      title: `${category} #${tag} posts on Hive`,
+      title,
       description: `RSS feed for ${category} posts tagged #${tag} on the Hive blockchain`,
       site: FEED_BASE,
       items: filtered.map(post => postToItem(post, iface, refer)),
-      customData: channelExtras({
-        self: selfUrl(url),
-        image: { url: DEFAULT_IMAGE, title: 'HiveRSS', link: makeTagUrl(category, tag, iface, refer) },
-      }),
+      customData: channelExtras({ self: selfUrl(url), title, imageUrl: DEFAULT_IMAGE }),
       xmlns: FEED_XMLNS,
     });
   } catch (err: any) {

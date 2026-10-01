@@ -2,7 +2,6 @@
 import type { APIRoute } from 'astro';
 import rss from '@astrojs/rss';
 import { getUserPosts, getAccountProfileImage, filterByTag } from '../lib/hive';
-import { makeAuthorUrl } from '../lib/interfaces';
 import { getInterface, getLimit, getTagFilter, getRefer } from '../lib/params';
 import { postToItem } from '../lib/content';
 import { FEED_BASE, FEED_XMLNS, channelExtras, selfUrl } from '../lib/feed';
@@ -26,16 +25,14 @@ export const GET: APIRoute = async ({ params, request }) => {
     ]);
 
     const filtered = filterByTag(posts, tagFilter);
+    const title = `Posts from @${username}`;
 
     return rss({
-      title: `Posts from @${username}`,
+      title,
       description: `RSS feed for @${username}'s blog on Hive`,
       site: FEED_BASE,
       items: filtered.map(post => postToItem(post, iface, refer)),
-      customData: channelExtras({
-        self: selfUrl(url),
-        image: { url: profileImage, title: `@${username}`, link: makeAuthorUrl(username, 'blog', iface, refer) },
-      }),
+      customData: channelExtras({ self: selfUrl(url), title, imageUrl: profileImage }),
       xmlns: FEED_XMLNS,
     });
   } catch (err: any) {

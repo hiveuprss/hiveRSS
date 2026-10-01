@@ -1,6 +1,9 @@
 export const FEED_BASE = 'https://hiverss.com';
 export const DEFAULT_IMAGE = `${FEED_BASE}/hive_logo.png`;
 
+/** Channel <link> that @astrojs/rss emits from `site: FEED_BASE`. */
+export const CHANNEL_LINK = `${FEED_BASE}/`;
+
 /** Namespaces used by the extra channel/item elements below. */
 export const FEED_XMLNS = {
   atom: 'http://www.w3.org/2005/Atom',
@@ -32,18 +35,21 @@ export function selfUrl(requestUrl: URL): string {
   return `${FEED_BASE}${requestUrl.pathname}${requestUrl.search}`;
 }
 
-/** Channel-level extras: atom:link rel="self" and an optional <image>. */
+/**
+ * Channel-level extras: atom:link rel="self" and an optional <image>.
+ * Image title/link match the channel (W3C feed validator recommendation).
+ */
 export function channelExtras(opts: {
   self: string;
-  image?: { url: string; title: string; link: string };
+  title: string;
+  imageUrl?: string;
 }): string {
   const parts = [
     `<atom:link href="${escapeXml(opts.self)}" rel="self" type="application/rss+xml"/>`,
   ];
-  if (opts.image) {
-    const { url, title, link } = opts.image;
+  if (opts.imageUrl) {
     parts.push(
-      `<image><url>${escapeXml(safeImageUrl(url))}</url><title>${escapeXml(title)}</title><link>${escapeXml(link)}</link></image>`,
+      `<image><url>${escapeXml(safeImageUrl(opts.imageUrl))}</url><title>${escapeXml(opts.title)}</title><link>${escapeXml(CHANNEL_LINK)}</link></image>`,
     );
   }
   return parts.join('');
